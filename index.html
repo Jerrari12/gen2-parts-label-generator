@@ -2,28 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>GEN2 Label Generator · Jerrari3D</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1a1c">
+<title>GEN2 Label Generator · Jerrari Design</title>
 <style>
   :root {
-    --bg: #0e0f12;
-    --panel: #16181d;
-    --panel-2: #1c1f26;
-    --border: #2a2d35;
-    --text: #e8eaed;
-    --muted: #8a8f99;
-    --accent: #4dd9a6;
-    --accent-hover: #5fe9b6;
-    --accent-dim: #2d8060;
+    /* Jerrari Design brand palette */
+    --bg: #1a1a1c;
+    --panel: #232427;
+    --panel-2: #2c2d31;
+    --border: #3a3b3f;
+    --text: #f0f0f2;
+    --muted: #8a8d94;
+    --accent: #ee7a30;          /* brand orange */
+    --accent-hover: #ff8a40;
+    --accent-dark: #c25a1e;     /* darker orange */
+    --accent-dim: #6e3b18;
+    --info: #5fc3e3;            /* brand blue */
+    --info-dark: #3a8aa8;
     --danger: #ff6b6b;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
   #app { display: flex; height: 100%; }
   #sidebar { width: 360px; flex-shrink: 0; background: var(--panel); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
-  #preview { flex: 1; position: relative; background: linear-gradient(180deg, #1a1d22 0%, #0e0f12 100%); }
+  #preview { flex: 1; position: relative; background: linear-gradient(180deg, #2c2d31 0%, #1a1a1c 100%); }
   #preview canvas { display: block; }
-  h1 { font-size: 17px; font-weight: 700; margin: 0 0 2px 0; letter-spacing: -0.2px; }
-  .subtitle { color: var(--muted); font-size: 11px; margin-bottom: 20px; letter-spacing: 0.5px; }
+  .brand-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .brand-logo { width: 38px; height: 56px; flex-shrink: 0; }
+  .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+  .brand-name { font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: var(--text); }
+  .brand-tag { font-size: 11px; color: var(--muted); margin-top: 3px; letter-spacing: 0.3px; }
   h2 { font-size: 11px; margin: 18px 0 8px 0; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
   .row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
   .row .idx { color: var(--muted); font-size: 11px; width: 18px; text-align: right; }
@@ -33,7 +42,7 @@
   .row .remove:hover { color: var(--danger); border-color: var(--danger); }
   button.add { padding: 7px 10px; background: transparent; border: 1px dashed var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 12px; width: 100%; margin-top: 4px; }
   button.add:hover { color: var(--accent); border-color: var(--accent-dim); }
-  button.primary { width: 100%; padding: 13px; background: var(--accent); color: #07140d; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 14px; letter-spacing: 0.3px; transition: background 0.15s; }
+  button.primary { width: 100%; padding: 13px; background: var(--accent); color: #1a1a1c; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 14px; letter-spacing: 0.3px; transition: background 0.15s; box-shadow: 0 2px 8px rgba(238, 122, 48, 0.25); }
   button.primary:hover:not(:disabled) { background: var(--accent-hover); }
   button.primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
   .setting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; }
@@ -42,16 +51,22 @@
   .setting select { width: 140px; }
   .csv-zone { border: 1px dashed var(--border); padding: 10px; text-align: center; border-radius: 5px; font-size: 11px; color: var(--muted); margin-top: 6px; cursor: pointer; transition: all 0.15s; }
   .csv-zone:hover { border-color: var(--accent-dim); color: var(--text); }
-  .csv-zone.drag-over { border-color: var(--accent); background: rgba(77, 217, 166, 0.05); }
+  .csv-zone.drag-over { border-color: var(--accent); background: rgba(238, 122, 48, 0.06); }
   .csv-zone strong { color: var(--accent); }
   #csv-input { display: none; }
   #status { padding: 8px 10px; background: var(--panel-2); border-radius: 5px; font-size: 11px; color: var(--muted); margin-top: 10px; min-height: 14px; line-height: 1.4; }
-  #status.ok { color: var(--accent); }
+  #status.ok { color: var(--info); }
   #status.err { color: var(--danger); }
   .footer { margin-top: auto; padding-top: 16px; color: var(--muted); font-size: 10px; text-align: center; }
   .footer a { color: var(--muted); text-decoration: none; }
   .footer a:hover { color: var(--accent); }
   .overlay { position: absolute; top: 12px; left: 12px; background: rgba(20, 22, 26, 0.85); backdrop-filter: blur(6px); padding: 8px 12px; border-radius: 5px; font-size: 11px; color: var(--muted); border: 1px solid var(--border); }
+  .hint-desktop { display: inline; }
+  .hint-mobile { display: none; }
+  @media (max-width: 760px) {
+    .hint-desktop { display: none; }
+    .hint-mobile { display: inline; }
+  }
   .overlay strong { color: var(--text); }
   .brand { position: absolute; bottom: 12px; right: 14px; color: var(--muted); font-size: 10px; letter-spacing: 1px; opacity: 0.6; }
   .color-swatches { display: flex; gap: 8px; margin-top: 4px; }
@@ -59,13 +74,93 @@
   .swatch:hover { border-color: var(--accent-dim); }
   .swatch .dot { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
   .swatch input[type="color"] { width: 0; height: 0; padding: 0; border: 0; opacity: 0; position: absolute; }
+  /* === Mobile / responsive (≤ 760px) === */
+  @media (max-width: 760px) {
+    html, body { overflow-y: auto; }
+    #app { flex-direction: column; height: auto; min-height: 100vh; }
+    #sidebar {
+      width: 100%;
+      max-height: none;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
+      padding: 16px;
+      order: 2;            /* preview on top, controls below */
+      overflow-y: visible;
+    }
+    #preview {
+      width: 100%;
+      height: 55vh;
+      min-height: 320px;
+      max-height: 480px;
+      order: 1;
+      flex: none;
+    }
+    .brand-header { padding-bottom: 12px; margin-bottom: 12px; }
+    .brand-logo { width: 32px; height: 50px; }
+    .brand-name { font-size: 13px; }
+    .brand-tag { font-size: 10px; }
+    h2 { margin: 14px 0 6px 0; }
+    .row { gap: 8px; }
+    .row input[type="text"] {
+      font-size: 16px;   /* prevent iOS zoom on focus */
+      padding: 11px 12px;
+    }
+    .row .remove {
+      width: 34px;
+      height: 34px;
+      font-size: 22px;
+    }
+    button.add { padding: 10px; font-size: 13px; }
+    button.primary { padding: 14px; font-size: 15px; }
+    .setting { padding: 4px 0; }
+    .setting input[type="number"], .setting select {
+      font-size: 16px;   /* prevent iOS zoom */
+      padding: 8px 10px;
+    }
+    .csv-zone { padding: 14px; font-size: 12px; }
+    .overlay { font-size: 10px; padding: 6px 9px; }
+    .brand { font-size: 9px; bottom: 8px; right: 10px; }
+    .footer { padding-top: 12px; }
+  }
+
+  /* === Very narrow (≤ 380px) === */
+  @media (max-width: 380px) {
+    .brand-name { font-size: 12px; letter-spacing: 1px; }
+    .brand-logo { width: 28px; height: 44px; }
+    #preview { height: 45vh; min-height: 280px; }
+  }
 </style>
 </head>
 <body>
 <div id="app">
   <div id="sidebar">
-    <h1>GEN2 Label Generator</h1>
-    <div class="subtitle">JERRARI3D · v1.2</div>
+    <!-- LOGO START — real Jerrari Design badge -->
+    <div class="brand-header">
+      <svg class="brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 798.74 1365.44" aria-label="Jerrari Design">
+        <defs>
+          <linearGradient id="jdl-grad" x1="82.85" y1="547.74" x2="716.19" y2="547.74" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#72C6EF"/>
+            <stop offset="1" stop-color="#379AD5"/>
+          </linearGradient>
+        </defs>
+        <g>
+          <path fill="#59595B" d="M657.4,141.35L24.31,774.44L0,798.74l0.06,34.37L0.3,983.65l0,2.2l0.12,2.19c5.3,96.98,45.68,188.35,113.8,257.73c0.86,0.95,1.75,1.88,2.66,2.79l0.02,0.02l0.02,0.02c38.1,38.06,82.56,67.55,132.14,87.64c23.82,9.65,48.73,17.03,74.02,21.92c25.03,4.84,50.66,7.3,76.18,7.3c25.54,0,51.18-2.46,76.23-7.31c25.31-4.9,50.23-12.28,74.06-21.95c49.61-20.12,94.09-49.64,132.2-87.75c18.55-18.55,35.34-39.03,49.89-60.85c14.41-21.62,26.77-44.75,36.71-68.76c9.94-24.01,17.57-49.1,22.66-74.58c5.14-25.72,7.75-52.06,7.75-78.3v-316.7V534.58v-60.02V350.67v-2.65V199.9V0L657.4,141.35z"/>
+          <polygon fill="url(#jdl-grad)" points="716.19,199.65 82.85,832.98 82.85,895.82 716.19,262.49"/>
+          <path fill="#F06A35" d="M631.44,733.99l-41.89,41.89c-0.03,0.03-0.05,0.07-0.05,0.12v188.49c0,50.9-19.78,100.03-55.82,135.98c-52.72,52.6-128.64,67.8-194.78,45.62c-0.06-0.02-0.13,0-0.17,0.04l-32.38,32.38c-0.08,0.08-0.06,0.23,0.05,0.28c84.01,36.71,185.31,21.32,254.82-46.18c45.37-44.06,70.5-104.92,70.5-168.16V734.11C631.73,733.96,631.55,733.89,631.44,733.99z"/>
+          <path fill="#F06A35" d="M175.67,1189.77l24.31-24.31l35.28-35.28l29.86-29.86l24.4-24.4l35.2-35.2c0.07-0.07,0.17-0.07,0.24,0c40.32,40.2,105.05,41.05,146.4,2.55c21.71-20.2,33.69-48.76,33.69-78.42V860.79c0-0.15-0.18-0.23-0.29-0.12L399.78,965.66c-0.11,0.11-0.29,0.03-0.29-0.12V667.43c0-0.04,0.02-0.09,0.05-0.12l-316.2,316.2c4.4,80.48,38.86,152.95,92.33,206.39C175.67,1189.86,175.63,1189.8,175.67,1189.77z"/>
+          <path fill="#F06A35" d="M483.99,704.31c-0.03,0.03-0.05,0.08-0.05,0.12v58.9c0,0.15,0.18,0.23,0.29,0.12L715.9,534.46c0.11-0.11,0.29-0.03,0.29,0.12v-60.02c0,0.05-0.02,0.09-0.05,0.12L483.99,704.31z"/>
+          <path fill="#FFFFFF" d="M716.19,474.56V351.08c0-0.15-0.18-0.23-0.29-0.12L399.54,667.32c-0.03,0.03-0.05,0.07-0.05,0.12v298.11c0,0.15,0.18,0.23,0.29,0.12l104.99-104.99c0.11-0.11,0.29-0.03,0.29,0.12v104.06c0,29.65-11.98,58.21-33.69,78.42c-41.36,38.5-106.08,37.64-146.4-2.55c-0.07-0.07-0.17-0.07-0.24,0l-35.2,35.2l-24.4,24.4l-29.86,29.86l-35.28,35.28l-24.31,24.31c-0.07,0.07-0.07,0.17,0,0.24c123.69,123.56,324.12,123.52,447.76-0.12c59.39-59.39,92.76-139.94,92.76-223.94v-316.7V534.58c0-0.15-0.18-0.23-0.29-0.12L484.23,763.45c-0.11,0.11-0.29,0.03-0.29-0.12v-58.9c0-0.05,0.02-0.09,0.05-0.12l232.14-229.63C716.17,474.65,716.19,474.61,716.19,474.56z M589.51,964.49V776c0-0.04,0.02-0.09,0.05-0.12l41.89-41.89c0.11-0.11,0.29-0.03,0.29,0.12v230.34c0,63.24-25.13,124.1-70.5,168.16c-69.51,67.5-170.81,82.89-254.82,46.18c-0.11-0.05-0.14-0.19-0.05-0.28l32.38-32.38c0.05-0.05,0.11-0.06,0.17-0.04c66.14,22.18,142.06,6.98,194.78-45.62C569.73,1064.52,589.51,1015.39,589.51,964.49z"/>
+          <path fill="#C05627" d="M631.44,733.99l-41.89,41.89c-0.03,0.03-0.05,0.07-0.05,0.12v188.49c0,50.9-19.78,100.03-55.82,135.98c-52.72,52.6-128.64,67.8-194.78,45.62c-0.06-0.02-0.13,0-0.17,0.04l-32.38,32.38c-0.08,0.08-0.06,0.23,0.05,0.28c20.71,9.05,42.46,14.92,64.53,17.63l18.48-18.48c0.04-0.05,0.11-0.06,0.17-0.04c26.76,8.98,55.12,11.83,82.9,8.56c32.31-10.67,62.75-28.62,88.73-53.85c45.37-44.06,70.5-104.92,70.5-168.16V734.11C631.73,733.96,631.55,733.89,631.44,733.99z"/>
+          <path fill="#C05627" d="M483.99,704.31c-0.03,0.03-0.05,0.08-0.05,0.12v58.9c0,0.15,0.18,0.23,0.29,0.12L715.9,534.46c0.11-0.11,0.29-0.03,0.29,0.12v-60.02c0,0.05-0.02,0.09-0.05,0.12L483.99,704.31z"/>
+          <path fill="#C05627" d="M504.77,860.67l-54.59,54.59v82.09c0,0.15,0.18,0.23,0.29,0.12l54.59-54.59v-82.09C505.06,860.64,504.87,860.57,504.77,860.67z"/>
+        </g>
+      </svg>
+      <div class="brand-text">
+        <div class="brand-name">JERRARI DESIGN</div>
+        <div class="brand-tag">GEN2 Label Generator</div>
+      </div>
+    </div>
+    <!-- LOGO END -->
 
     <h2>Labels</h2>
     <div id="labels"></div>
@@ -89,9 +184,9 @@
     <h2>Preview Colors</h2>
     <div class="color-swatches">
       <label class="swatch">
-        <span class="dot" id="dot-base" style="background:#e8e8e8"></span>
+        <span class="dot" id="dot-base" style="background:#f0f0f2"></span>
         <span>Base</span>
-        <input type="color" id="color-base" value="#e8e8e8">
+        <input type="color" id="color-base" value="#f0f0f2">
       </label>
       <label class="swatch">
         <span class="dot" id="dot-text" style="background:#1a1a1a"></span>
@@ -105,15 +200,16 @@
 
     <div class="footer">
       Built for the GEN2 Modular Storage System<br>
-      <a href="#" id="help-link">How to print in two colors →</a>
+      <a href="#" id="help-link">How to print in two colors →</a><br>
+      <span style="opacity: 0.6;">jerrari3d.com</span>
     </div>
   </div>
   <div id="preview">
     <div class="overlay">
       <strong>GEN2 Label</strong> · 29.9 × 8.0 × 1.35 mm<br>
-      <span id="label-count">0 labels</span> · Scroll to zoom · Drag to rotate
+      <span id="label-count">0 labels</span><span class="hint-desktop"> · Scroll to zoom · Drag to rotate</span><span class="hint-mobile"> · Pinch / drag to navigate</span>
     </div>
-    <span class="brand">JERRARI3D</span>
+    <span class="brand">JERRARI DESIGN · v1.6</span>
   </div>
 </div>
 
@@ -132,6 +228,7 @@ class MiniOrbit {
     this.minPolar = 0.05; this.maxPolar = Math.PI - 0.05;
     this._drag = null; this._lx = 0; this._ly = 0;
     this._sync();
+    // --- Mouse ---
     dom.addEventListener('mousedown', e => {
       this._drag = (e.button === 2 || e.shiftKey) ? 'pan' : 'rotate';
       this._lx = e.clientX; this._ly = e.clientY; e.preventDefault();
@@ -140,21 +237,7 @@ class MiniOrbit {
       if (!this._drag) return;
       const dx = e.clientX - this._lx, dy = e.clientY - this._ly;
       this._lx = e.clientX; this._ly = e.clientY;
-      if (this._drag === 'rotate') {
-        this.spherical.theta -= dx * 0.005;
-        this.spherical.phi -= dy * 0.005;
-        this.spherical.phi = Math.max(this.minPolar, Math.min(this.maxPolar, this.spherical.phi));
-      } else {
-        const r = this.spherical.radius;
-        const right = new THREE.Vector3(); const up = new THREE.Vector3();
-        this.camera.getWorldDirection(right);
-        right.cross(this.camera.up).normalize();
-        up.copy(this.camera.up);
-        const k = r * 0.0015;
-        this.target.addScaledVector(right, -dx * k);
-        this.target.addScaledVector(up, dy * k);
-      }
-      this._apply();
+      this._handleMove(dx, dy);
     });
     window.addEventListener('mouseup', () => { this._drag = null; });
     dom.addEventListener('contextmenu', e => e.preventDefault());
@@ -164,10 +247,85 @@ class MiniOrbit {
       this.spherical.radius = Math.max(this.minDistance, Math.min(this.maxDistance, this.spherical.radius * f));
       this._apply();
     }, { passive: false });
+
+    // --- Touch (1 finger = rotate, 2 fingers = pinch zoom + pan) ---
+    this._pinchDist = 0;
+    this._touches = [];
+    dom.addEventListener('touchstart', e => {
+      this._touches = Array.from(e.touches);
+      if (e.touches.length === 1) {
+        this._drag = 'rotate';
+        this._lx = e.touches[0].clientX; this._ly = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        this._drag = 'pinch';
+        const [a, b] = e.touches;
+        this._pinchDist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        this._lx = (a.clientX + b.clientX) / 2;
+        this._ly = (a.clientY + b.clientY) / 2;
+      }
+      e.preventDefault();
+    }, { passive: false });
+    dom.addEventListener('touchmove', e => {
+      if (!this._drag) return;
+      if (this._drag === 'rotate' && e.touches.length === 1) {
+        const t = e.touches[0];
+        const dx = t.clientX - this._lx, dy = t.clientY - this._ly;
+        this._lx = t.clientX; this._ly = t.clientY;
+        this._handleMove(dx, dy);
+      } else if (this._drag === 'pinch' && e.touches.length === 2) {
+        const [a, b] = e.touches;
+        const newDist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+        const newMx = (a.clientX + b.clientX) / 2;
+        const newMy = (a.clientY + b.clientY) / 2;
+        // Pinch zoom
+        if (this._pinchDist > 0) {
+          const f = this._pinchDist / newDist;
+          this.spherical.radius = Math.max(this.minDistance, Math.min(this.maxDistance, this.spherical.radius * f));
+        }
+        // Two-finger pan
+        const dx = newMx - this._lx, dy = newMy - this._ly;
+        const r = this.spherical.radius;
+        const right = new THREE.Vector3(); const up = new THREE.Vector3();
+        this.camera.getWorldDirection(right);
+        right.cross(this.camera.up).normalize();
+        up.copy(this.camera.up);
+        const k = r * 0.0015;
+        this.target.addScaledVector(right, -dx * k);
+        this.target.addScaledVector(up, dy * k);
+        this._pinchDist = newDist;
+        this._lx = newMx; this._ly = newMy;
+        this._apply();
+      }
+      e.preventDefault();
+    }, { passive: false });
+    dom.addEventListener('touchend', e => {
+      if (e.touches.length === 0) { this._drag = null; }
+      else if (e.touches.length === 1) {
+        this._drag = 'rotate';
+        this._lx = e.touches[0].clientX; this._ly = e.touches[0].clientY;
+      }
+    });
   }
   _sync() {
     const o = new THREE.Vector3().subVectors(this.camera.position, this.target);
     this.spherical.setFromVector3(o);
+  }
+  _handleMove(dx, dy) {
+    if (this._drag === 'rotate') {
+      this.spherical.theta -= dx * 0.005;
+      this.spherical.phi -= dy * 0.005;
+      this.spherical.phi = Math.max(this.minPolar, Math.min(this.maxPolar, this.spherical.phi));
+    } else if (this._drag === 'pan') {
+      const r = this.spherical.radius;
+      const right = new THREE.Vector3(); const up = new THREE.Vector3();
+      this.camera.getWorldDirection(right);
+      right.cross(this.camera.up).normalize();
+      up.copy(this.camera.up);
+      const k = r * 0.0015;
+      this.target.addScaledVector(right, -dx * k);
+      this.target.addScaledVector(up, dy * k);
+    }
+    this._apply();
   }
   _apply() {
     const o = new THREE.Vector3().setFromSpherical(this.spherical);
@@ -250,7 +408,7 @@ function setupThree() {
   scene.add(dir2);
 
   // Grid (build plate reference)
-  const grid = new THREE.GridHelper(200, 20, 0x2a2d35, 0x1a1d22);
+  const grid = new THREE.GridHelper(200, 20, 0x3a3b3f, 0x2c2d31);
   grid.rotation.x = Math.PI / 2;
   grid.position.z = -0.01;
   scene.add(grid);
