@@ -2,7 +2,7 @@
 
 A browser-based tool for creating custom labels for GEN2 Modular Storage System parts drawers. No install, no account, no fuss, open it and go.
 
-🔗 **[Use it live →](https://yourusername.github.io/gen2-label-generator)**
+🔗 **[Use it live →](https://jerrari12.github.io/gen2-parts-label-generator/)**
 
 ---
 
