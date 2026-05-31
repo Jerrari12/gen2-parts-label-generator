@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1c">
-<title>GEN2 Label Generator · Jerrari Design</title>
+<title>GEN2 Classic Pro Label Generator · Jerrari Design</title>
 <style>
   :root {
     /* Jerrari Design brand palette */
@@ -129,6 +129,24 @@
     .brand-logo { width: 28px; height: 44px; }
     #preview { height: 45vh; min-height: 280px; }
   }
+  /* === Left badge (icon / letter) === */
+  .row .badge-btn { width: 28px; height: 28px; flex-shrink: 0; background: #0a0b0e; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; cursor: pointer; font-size: 15px; font-weight: 700; line-height: 1; padding: 3px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .row .badge-btn:hover { border-color: var(--accent-dim); color: var(--text); }
+  .row .badge-btn.set { border-color: var(--accent-dim); color: var(--accent); }
+  .row .badge-btn svg { width: 18px; height: 18px; fill: currentColor; }
+  .badge-popover { position: fixed; z-index: 50; width: 250px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; padding: 11px; box-shadow: 0 10px 34px rgba(0,0,0,0.55); }
+  .badge-popover[hidden] { display: none; }
+  .bp-head { display: flex; justify-content: space-between; align-items: center; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 9px; }
+  .bp-close { background: none; border: none; color: var(--muted); font-size: 17px; line-height: 1; cursor: pointer; padding: 0; }
+  .bp-label { font-size: 10px; color: var(--muted); margin: 2px 0 5px; text-transform: uppercase; letter-spacing: 0.6px; }
+  .bp-section { display: flex; gap: 6px; align-items: center; margin-bottom: 10px; }
+  .bp-section input[type="text"] { flex: 1; padding: 7px 9px; background: #0a0b0e; border: 1px solid var(--border); color: var(--text); border-radius: 5px; font-family: inherit; font-size: 13px; }
+  .bp-section button:not(.bp-icon) { padding: 7px 10px; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: 5px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+  .bp-section button:not(.bp-icon):hover { border-color: var(--accent-dim); color: var(--accent); }
+  .bp-icons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
+  .bp-icon { aspect-ratio: 1 / 1; background: #0a0b0e; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 6px; }
+  .bp-icon:hover { border-color: var(--accent); color: var(--accent); }
+  .bp-icon svg { width: 100%; height: 100%; fill: currentColor; }
 </style>
 </head>
 <body>
@@ -157,7 +175,7 @@
       </svg>
       <div class="brand-text">
         <div class="brand-name">JERRARI DESIGN</div>
-        <div class="brand-tag">GEN2 Label Generator</div>
+        <div class="brand-tag">GEN2 Classic Pro Label Generator</div>
       </div>
     </div>
     <!-- LOGO END -->
@@ -166,12 +184,29 @@
     <div id="labels"></div>
     <button class="add" id="add-label">+ Add label</button>
 
+    <!-- Shared badge picker popover -->
+    <div id="badge-popover" class="badge-popover" hidden>
+      <div class="bp-head"><span>Left badge (optional)</span><button class="bp-close" id="bp-close" title="Close">×</button></div>
+      <div class="bp-label">Letter / number / short code</div>
+      <div class="bp-section">
+        <input type="text" id="bp-char" maxlength="4" placeholder="A, 1, M3…">
+        <button id="bp-char-apply">Use</button>
+      </div>
+      <div class="bp-label">Built-in icons</div>
+      <div class="bp-section"><div class="bp-icons" id="bp-icons"></div></div>
+      <div class="bp-section">
+        <button id="bp-upload-btn">Upload SVG…</button>
+        <button id="bp-none">No badge</button>
+        <input type="file" id="bp-upload" accept=".svg,image/svg+xml" hidden>
+      </div>
+    </div>
+
     <div class="csv-zone" id="csv-zone" tabindex="0">
       Drop or click to import <strong>CSV / TXT</strong> (one label per row)
     </div>
     <input type="file" id="csv-input" accept=".csv,.txt,text/csv,text/plain">
 
-    <h2>Settings</h2>
+    <h2>Label Settings</h2>
     <div class="setting">
       <span>Text height (cap)</span>
       <span><input type="number" id="font-size" value="5" min="2" max="6.5" step="0.5"> mm</span>
@@ -179,6 +214,54 @@
     <div class="setting">
       <span>Text depth</span>
       <span><input type="number" id="text-depth" value="0.6" min="0.2" max="1.2" step="0.1"> mm</span>
+    </div>
+    <div class="setting">
+      <span>Badge size (cap)</span>
+      <span><input type="number" id="badge-size" value="14" min="4" max="22" step="0.5"> mm</span>
+    </div>
+    <div class="setting">
+      <span>Bold text</span>
+      <span><input type="checkbox" id="bold-text"></span>
+    </div>
+
+    <h2>Build Plate</h2>
+    <div class="setting">
+      <span>Printer</span>
+      <select id="bed-preset">
+        <option value="250x220">Prusa Core One (250×220)</option>
+        <option value="300x300">Prusa Core One L (300×300)</option>
+        <option value="250x210">Prusa MK4 / MK3.9 (250×210)</option>
+        <option value="360x360">Prusa XL (360×360)</option>
+        <option value="256x256">Bambu X1 / P1 / A1 (256×256)</option>
+        <option value="180x180">Bambu A1 mini (180×180)</option>
+        <option value="325x320">Bambu H2D / H2C / H2S (325×320)</option>
+        <option value="256x256">Bambu X2D (256×256)</option>
+        <option value="256x256">Bambu P2S (256×256)</option>
+        <option value="270x270">Snapmaker U1 (270×270)</option>
+        <option value="220x220">Ender 3 / Neo (220×220)</option>
+        <option value="300x300">Ender 5 Plus (300×300)</option>
+        <option value="350x350">Voron 2.4 / Trident (350×350)</option>
+        <option value="custom">Custom…</option>
+      </select>
+    </div>
+    <div class="setting">
+      <span>Plate W × L (mm)</span>
+      <span><input type="number" id="bed-w" value="250" min="20" max="1000" step="1" style="width:46px"> × <input type="number" id="bed-l" value="220" min="20" max="1000" step="1" style="width:46px"></span>
+    </div>
+    <div class="setting">
+      <span>Export format</span>
+      <select id="export-format">
+        <option value="3mf">3MF · 2-color (text + base)</option>
+        <option value="stl">STL · single color</option>
+      </select>
+    </div>
+    <div class="setting">
+      <span>Reserve purge area (top-right)</span>
+      <span><input type="checkbox" id="reserve-purge" checked></span>
+    </div>
+    <div class="setting" id="purge-size-row">
+      <span>Purge W × L (mm)</span>
+      <span><input type="number" id="purge-w" value="80" min="5" max="400" step="1" style="width:46px"> × <input type="number" id="purge-l" value="80" min="5" max="400" step="1" style="width:46px"></span>
     </div>
 
     <h2>Preview Colors</h2>
@@ -206,10 +289,10 @@
   </div>
   <div id="preview">
     <div class="overlay">
-      <strong>GEN2 Label</strong> · 29.9 × 8.0 × 1.35 mm<br>
+      <strong>GEN2 Classic Pro</strong> · 47 × 25.5 × 1.5 mm<br>
       <span id="label-count">0 labels</span><span class="hint-desktop"> · Scroll to zoom · Drag to rotate</span><span class="hint-mobile"> · Pinch / drag to navigate</span>
     </div>
-    <span class="brand">JERRARI DESIGN · v1.6</span>
+    <span class="brand">JERRARI DESIGN · Classic Pro v1.01</span>
   </div>
 </div>
 
@@ -217,6 +300,7 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.146.0/examples/js/loaders/SVGLoader.js"></script>
 <script>
 // Minimal orbit controls — no external dependency, works with any Three.js build
 class MiniOrbit {
@@ -346,25 +430,39 @@ THREE.OrbitControls = MiniOrbit;
 // GEN2 Label Generator
 //============================================================
 
-// Base plate geometry (16 verts, 28 tris) — centered XY, bottom at Z=0
-const BASE_VERTS = [-14.6879, -4.0, 0.25, 14.9379, -3.75, 0.0, 14.6879, -4.0, 0.25, -14.9379, -3.75, 0.0, 14.05, -4.0, 0.8879, -14.05, -4.0, 0.8879, -14.05, -4.0, 1.35, 14.05, -4.0, 1.35, 14.05, 4.0, 0.8879, 14.9379, 3.75, 0.0, 14.6879, 4.0, 0.25, -14.9379, 3.75, 0.0, -14.6879, 4.0, 0.25, -14.05, 4.0, 0.8879, -14.05, 4.0, 1.35, 14.05, 4.0, 1.35];
-const BASE_TRIS = [0, 1, 2, 3, 1, 0, 0, 2, 4, 5, 0, 4, 6, 4, 7, 6, 5, 4, 1, 4, 2, 8, 4, 1, 9, 10, 8, 9, 8, 1, 9, 11, 12, 10, 9, 12, 8, 10, 12, 8, 12, 13, 8, 13, 14, 15, 8, 14, 5, 3, 0, 11, 3, 5, 13, 12, 11, 13, 11, 5, 8, 7, 4, 8, 15, 7, 15, 6, 7, 15, 14, 6, 14, 5, 6, 14, 13, 5, 3, 9, 1, 11, 9, 3];
+// Classic Pro base geometry (from Label-ClassicPro.stl) -- recentered: XY centered, bottom at Z=0. Top flat plane at Z=1.5; tabs/slots at bottom (low Y).
+const BASE_VERTS = [-21.0121,-3.1366,0,-21.0121,-12.7366,0,-21.0121,-3.1366,1.5,-21.0121,-12.7366,1.5,-21.0258,-3.0331,0,-21.0258,-3.0331,1.5,-21.0657,-2.9366,0,-21.0657,-2.9366,1.5,-21.1293,-2.8538,0,-21.1293,-2.8538,1.5,-21.2121,-2.7902,0,-21.2121,-2.7902,1.5,-21.3086,-2.7502,0,-21.3086,-2.7502,1.5,-21.4121,-2.7366,0,-21.4121,-2.7366,1.5,-21.5157,-2.7502,0,-21.5157,-2.7502,1.5,-21.6121,-2.7902,0,-21.6121,-2.7902,1.5,-21.695,-2.8538,0,-21.695,-2.8538,1.5,-21.7586,-2.9366,0,-21.7586,-2.9366,1.5,-21.7985,-3.0331,0,-21.7985,-3.0331,1.5,-21.8121,-3.1366,0,-21.8121,-3.1366,1.5,-22.7354,-10.2747,0.9768,-22.7354,-9.1985,0.9768,-22.7354,-10.2747,0,-22.7354,-9.1985,0,-23.5354,-8.7366,0.1768,-23.4621,-8.7789,0,-23.5354,-10.7366,0.1768,-23.4621,-10.6943,0,-22.77,-12.7366,0.9421,-22.2121,-12.7366,1.5,-22.2121,11.4134,1.5,-23.5354,12.7366,0.1768,-23.5354,-11.7366,0.1768,-23.4621,12.6634,0,-23.4621,-11.7366,0,-22.3797,-12.7366,0,-21.8121,-12.7366,0,-21.8121,-12.7366,1.5,21.0121,-12.7366,1.5,21.0121,-3.1366,1.5,21.0257,-3.0331,1.5,21.0657,-2.9366,1.5,21.1293,-2.8538,1.5,22.2121,11.4134,1.5,21.2121,-2.7902,1.5,21.3086,-2.7502,1.5,21.4121,-2.7366,1.5,21.5156,-2.7502,1.5,21.6121,-2.7902,1.5,21.695,-2.8538,1.5,21.7585,-2.9366,1.5,21.7985,-3.0331,1.5,21.8121,-3.1366,1.5,22.2121,-12.7366,1.5,21.8121,-12.7366,1.5,21.0121,-12.7366,0,21.0121,-3.1366,0,21.8121,-3.1366,0,21.7985,-3.0331,0,21.7585,-2.9366,0,21.695,-2.8538,0,21.6121,-2.7902,0,21.5156,-2.7502,0,21.4121,-2.7366,0,21.3086,-2.7502,0,21.2121,-2.7902,0,21.1293,-2.8538,0,21.0657,-2.9366,0,21.0257,-3.0331,0,22.7353,-9.1985,0.9768,22.7353,-10.2747,0.9768,22.7353,-9.1985,0,22.7353,-10.2747,0,23.5354,-8.7366,0.1768,23.4621,-8.7789,0,23.5354,-10.7366,0.1768,23.4621,-10.6943,0,23.5354,-11.7366,0.1768,22.77,-12.7366,0.9422,23.5354,12.7366,0.1768,23.4621,12.6634,0,23.4621,-11.7366,0,22.3797,-12.7366,0,21.8121,-12.7366,0];
+const BASE_TRIS = [0,1,2,2,1,3,0,2,4,4,2,5,4,5,6,6,5,7,6,7,8,8,7,9,8,9,10,10,9,11,10,11,12,12,11,13,12,13,14,14,13,15,14,15,16,16,15,17,16,17,18,18,17,19,18,19,20,20,19,21,20,21,22,22,21,23,22,23,24,24,23,25,24,25,26,26,25,27,28,29,30,30,29,31,29,32,31,31,32,33,28,30,34,34,30,35,34,36,28,28,36,37,28,37,29,29,37,38,29,38,39,34,40,36,39,32,29,33,32,41,41,32,39,35,42,34,34,42,40,43,36,42,42,36,40,36,43,37,37,43,44,37,44,45,27,45,26,26,45,44,3,46,2,2,46,47,2,47,5,5,47,48,5,48,7,7,48,49,7,49,9,9,49,50,9,50,38,38,50,51,51,50,52,51,52,53,53,54,51,51,54,55,51,55,56,56,57,51,51,57,58,51,58,59,59,60,51,51,60,61,61,60,62,37,27,38,38,27,25,38,25,23,37,45,27,23,21,38,38,21,19,38,19,17,17,15,38,38,15,13,38,13,11,11,9,38,1,63,3,3,63,46,47,46,64,64,46,63,65,60,66,66,60,59,66,59,67,67,59,58,67,58,68,68,58,57,68,57,69,69,57,56,69,56,70,70,56,55,70,55,71,71,55,54,71,54,72,72,54,53,72,53,73,73,53,52,73,52,74,74,52,50,74,50,75,75,50,49,75,49,76,76,49,48,76,48,64,64,48,47,77,78,79,79,78,80,77,79,81,81,79,82,78,83,80,80,83,84,85,83,86,86,83,78,86,78,61,61,78,77,61,77,51,51,77,87,87,77,81,82,88,81,81,88,87,84,83,89,89,83,85,89,85,90,90,85,86,88,10,41,41,10,12,41,12,14,82,66,88,88,66,67,88,67,68,66,82,65,65,82,79,65,79,91,91,79,80,91,80,89,89,80,84,89,90,91,68,69,88,88,69,70,88,70,71,71,72,88,88,72,73,88,73,10,10,73,8,8,73,74,8,74,6,6,74,75,6,75,4,4,75,76,4,76,0,0,76,64,0,64,1,1,64,63,14,16,41,41,16,18,41,18,20,20,22,41,41,22,24,41,24,33,33,24,26,33,26,31,31,26,44,31,44,30,30,44,42,30,42,35,44,43,42,86,61,90,90,61,91,91,61,62,65,91,60,60,91,62,39,87,41,41,87,88,38,51,39,39,51,87];
 
-// Label constants from STEP file
-const LABEL_LEN = 29.88;
-const LABEL_WID = 8.0;
-const LABEL_HT  = 1.35;
-const TEXT_AREA_LEN = 28.10;   // usable top face X
-const TEXT_AREA_WID = 8.0;     // usable top face Y
-const TEXT_MARGIN_X = 0.8;
-const TEXT_MARGIN_Y = 0.6;
-const ROW_SPACING = 2.0;       // gap between labels on build plate
+// Classic Pro dimensions & usable text area (mm). The top face is a plain flat
+// rectangle at Z=1.5 (no diagonal). Measured from the mesh, the flat top plane
+// spans X ∈ [-22.21, 22.21] and Y ∈ [-12.74, 11.41] in recentered local coords
+// (a small chamfer trims the top edge); tabs/slots sit at the bottom (low Y).
+const LABEL_LEN = 47.07;  // X span (length)
+const LABEL_WID = 25.47;  // Y span (width)
+const LABEL_HT  = 1.5;    // top flat plane where text/badge sit
+const TOP_Z     = 1.5;
+const TOP_X     = 22.2121;   // top-plane half-width (X)
+const TOP_Y_HI  = 11.4134;   // top-plane upper Y bound
+const TOP_Y_LO  = -12.7366;  // top-plane lower Y bound
+const AREA_MARGIN = 2.0;                   // inset from the flat-top edges
+const AREA_LEFT  = -TOP_X + AREA_MARGIN;   // usable rectangle: left
+const AREA_RIGHT =  TOP_X - AREA_MARGIN;   // usable rectangle: right
+const AREA_TOP   =  TOP_Y_HI - AREA_MARGIN;// usable rectangle: top
+const AREA_BOTTOM=  TOP_Y_LO + AREA_MARGIN;// usable rectangle: bottom
+const AREA_CX    = (AREA_LEFT + AREA_RIGHT) / 2;   // horizontal center of usable area
+const AREA_CY    = (AREA_TOP + AREA_BOTTOM) / 2;   // vertical center of usable area
+const ROW_SPACING = 4.0;       // vertical gap between labels within a column
+const COL_SPACING = 6.0;       // horizontal gap between columns
+const BED_MARGIN  = 5.0;       // keep the label grid this far from the plate edge
+const PURGE_SIZE  = 80.0;      // reserved top-right square for a prime/purge block (mm)
 
 // Globals
 let scene, camera, renderer, controls;
 let font = null;
 let labelGroup = null;
 let baseMaterial, textMaterial;
+let bedOutline = null;
 
 //============================================================
 // Init
@@ -407,11 +505,7 @@ function setupThree() {
   dir2.position.set(-30, -20, 40);
   scene.add(dir2);
 
-  // Grid (build plate reference)
-  const grid = new THREE.GridHelper(200, 20, 0x3a3b3f, 0x2c2d31);
-  grid.rotation.x = Math.PI / 2;
-  grid.position.z = -0.01;
-  scene.add(grid);
+  // The build-plate outline is drawn dynamically in updateBedOutline().
 
   baseMaterial = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.6, metalness: 0.05 });
   textMaterial = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.5, metalness: 0.05 });
@@ -469,47 +563,242 @@ function getCapHeight() {
 //============================================================
 // Text → 3D geometry
 //============================================================
-function buildTextGeometry(text, capHeightMm, depthMm) {
-  if (!text || !text.trim()) return null;
+// Layout tuning
+const BADGE_GAP = 2.0;     // gap between badge and text (mm)
+const LINE_GAP  = 1.25;    // line pitch as a multiple of cap height
+const MIN_PRINT_CAP = 3.0; // never auto-shrink text below this (mm) — keeps it printable
+const BADGE_MAX_W_RATIO = 0.85; // cap badge width to this × its height so wide icons don't crowd the text
+const BOLD_OFFSET = 0.12;  // stroke thickening (mm) applied when "Bold text" is on
 
-  // Compute font size such that capital letters are capHeightMm tall
-  const capUnits = getCapHeight();
-  let fontSize = capHeightMm * font.unitsPerEm / capUnits;
+// Built-in icon set (simple filled SVGs, extrude cleanly). Users can also upload custom SVG.
+const ICON_LIBRARY = [
+  { id: 'bolt-hex-head', name: 'Bolt Hex Head', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.35 24.55"><path d="M28.35,12.27l-7.09,12.27H7.09L0,12.27,7.09,0h14.17l7.09,12.27Z"/></svg>' },
+  { id: 'screw-hex-socket', name: 'Screw Hex Socket', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.55 24.55"><path d="M12.27,24.55C5.5,24.55,0,19.05,0,12.27S5.5,0,12.27,0s12.27,5.5,12.27,12.27-5.5,12.27-12.27,12.27ZM16.25,5.39h-7.95l-3.97,6.88,3.97,6.88h7.95l3.97-6.88-3.97-6.88Z"/></svg>' },
+  { id: 'screw-phillips-head', name: 'Screw Phillips Head', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.55 24.55"><path d="M12.27,24.55C5.5,24.55,0,19.05,0,12.27S5.5,0,12.27,0s12.27,5.5,12.27,12.27-5.5,12.27-12.27,12.27ZM19.87,13.45v-2.35h-5.38l-1.05-1.05v-5.38h-2.35v5.38l-1.05,1.05h-5.38v2.35h5.38l1.05,1.05v5.38h2.35v-5.38l1.05-1.05h5.38Z"/></svg>' },
+  { id: 'screw-slotted-head', name: 'Screw Slotted Head', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.55 24.55"><path d="M.06,13.45c.59,6.23,5.83,11.1,12.22,11.1s11.62-4.87,12.21-11.1H.06Z"/><path d="M24.49,11.1C23.9,4.87,18.66,0,12.27,0S.65,4.87.06,11.1h24.43Z"/></svg>' },
+  { id: 'screw-torx-head', name: 'Screw Torx Head', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.55 24.55"><path d="M12.27,24.55C5.5,24.55,0,19.05,0,12.27S5.5,0,12.27,0s12.27,5.5,12.27,12.27-5.5,12.27-12.27,12.27ZM19.71,11.3l-1.46-.86c-.86-.5-1.39-1.42-1.4-2.42l-.02-1.7c0-.86-.94-1.4-1.69-.98l-1.48.84c-.87.49-1.92.49-2.79,0l-1.48-.84c-.75-.43-1.68.11-1.69.98l-.02,1.7c0,.99-.54,1.91-1.4,2.42l-1.46.86c-.74.44-.74,1.51,0,1.95l1.46.86c.86.5,1.39,1.42,1.4,2.42l.02,1.7c0,.86.94,1.4,1.69.98l1.48-.84c.87-.49,1.92-.49,2.79,0l1.48.84c.75.43,1.68-.11,1.69-.98l.02-1.7c0-.99.54-1.91,1.4-2.42l1.46-.86c.74-.44.74-1.51,0-1.95Z"/></svg>' },
+  { id: 'nut', name: 'Nut', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.35 24.55"><path d="M28.35,12.27l-7.09,12.27H7.09L0,12.27,7.09,0h14.17l7.09,12.27ZM14.17,4.67c-4.2,0-7.6,3.4-7.6,7.6s3.4,7.6,7.6,7.6,7.6-3.4,7.6-7.6-3.4-7.6-7.6-7.6Z"/></svg>' },
+  { id: 'washer', name: 'Washer', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.55 24.55"><path d="M12.27,0C5.5,0,0,5.5,0,12.27s5.5,12.27,12.27,12.27,12.27-5.5,12.27-12.27S19.05,0,12.27,0ZM12.27,17.72c-3,0-5.44-2.44-5.44-5.44s2.44-5.44,5.44-5.44,5.44,2.44,5.44,5.44-2.44,5.44-5.44,5.44Z"/></svg>' },
+  { id: 'screw-driver', name: 'Screw Driver', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.35 28.72"><path d="M14.02,15.73l-8.09,8.19c-.86.93-1.52,2.02-2.2,3.09-.86.42-1.73,1.25-2.59,1.64-.09.04-.17.1-.27.03l-.84-.88-.03-.16,1.58-2.68c.99-.6,2.01-1.16,2.88-1.95l8.41-8.44s.03-.03.06-.07c.06-.06.12-.13.05-.21-.39-.48-.97-.89-1.35-1.36-.07-.09-.18-.21-.16-.32.04-.2.94-.9,1.11-1.11,1.51-.14,3.03-1.57,3.58-2.93.13-.33.14-.66.26-1,.19-.55.66-.83,1.05-1.23.89-.9,1.77-1.83,2.64-2.74.77-.8,1.58-1.57,2.36-2.36.54-.55.94-1.16,1.8-1.24,1.05-.1,2.32,1.11,2.96,1.87.45.53,1.19,1.54,1.12,2.24-.13,1.28-1.81,2.3-2.57,3.24-1.38,1.43-2.81,2.83-4.23,4.23-.72.71-.77.45-1.63.75-.98.34-2.19,1.59-2.64,2.51-.22.45-.14.89-.4,1.26-.12.17-.76.8-.92.93-.09.07-.27.18-.37.12l-1.29-1.45s-.14-.08-.27.04Z"/></svg>' },
+  { id: 'wrench-a', name: 'Wrench A', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.35 31.02"><path d="M22.15,0c.42-.02,1.06-.02,1.41.26.09.07.2.16.11.28-.92.99-1.99,1.89-2.9,2.89-.3.34-.62.63-.53,1.12.08.43.64,1.89.88,2.24.45.65,1.4.9,2.13,1.13.65.21.76.29,1.31-.18,1.11-.95,2.09-2.21,3.19-3.19.44-.31.55.34.58.65.14,1.73-.75,5.31-2.23,6.36s-3.29.57-4.89,1c-1.2.32-2.13.86-2.96,1.78-3.29,3.63-6.3,7.52-9.5,11.23-1.25,2.24-1.13,5.23-4.39,5.44-2.96.19-4.74-2.21-4.29-5.02.41-2.56,3.56-2.56,5.16-3.96.51-.45,1.1-1.14,1.58-1.65,2.1-2.25,4.12-4.59,6.1-6.95,1.39-1.65,2.94-3.14,3.24-5.39.15-1.12-.24-2.13-.17-3.29.05-.95.28-1.83.93-2.54C18.01,1.01,20.55.09,22.15,0ZM2.07,28.4c.1.09.35-.01.53.11.29.2.19.57.37.65.13.06.26-.13.38-.15.3-.06.39.36.59.38.15.01.27-.29.42-.32.25-.05.43.19.59.14.1-.03.02-.41.18-.52.18-.12.55.05.65-.06.12-.13-.06-.32-.07-.46-.04-.42.55-.41.55-.63-.03-.13-.17-.16-.25-.27-.29-.39.25-.53.19-.74-.03-.09-.28-.15-.38-.22-.39-.28-.08-.58-.21-.77-.11-.15-.3-.04-.44-.05-.43-.03-.43-.61-.63-.63-.27-.04-.28.39-.71.19-.16-.08-.26-.28-.47-.25-.17.02-.1.41-.37.5-.16.05-.26-.04-.4-.05-.57-.06-.11.3-.27.61-.14.27-.58.17-.62.33s.31.3.28.59c-.02.22-.36.27-.37.42-.02.25.55.22.51.66-.02.17-.2.37-.02.54Z"/></svg>' },
+  { id: 'flush-cutter', name: 'Flush Cutter', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18.56 28.35"><path d="M18.55,27.33c.06.55-.12.9-.76,1-.64.1-.91-.26-1.08-.73-.17-.47-1.33-5.19-2.55-8.57-1.22-3.38-3.31-7.61-3.31-7.61,0,0-.08-.54-.04-1.24l-1.38-2.67,1.56-3.01,1.04,2.48s.01-.02.02-.02c.2-.29.65-.21.73.14.18.84.54,2.22,1.19,3.87,1.08,2.77,1.92,4.76,2.72,7.27.8,2.51,1.63,6.79,1.88,9.1ZM10.92,4.07l-3.16,6.1c.04.7-.04,1.25-.04,1.25,0,0-2.09,4.23-3.31,7.61-1.22,3.38-2.37,8.11-2.55,8.57-.17.47-.44.82-1.08.73-.64-.1-.82-.44-.76-1,.26-2.31,1.08-6.59,1.88-9.1.8-2.51,1.64-4.5,2.72-7.27.65-1.65,1-3.03,1.19-3.87.08-.35.53-.44.73-.14,0,0,.01.02.02.02l1.1-2.64s.06-.2.55-.77c.49-.58,1.29-.36,1.29-.36l.32-.75.13-1.72.24-.73.79,3.72c.03.12,0,.24-.05.35ZM10.15,4.43c0-.48-.39-.87-.87-.87s-.87.39-.87.87.39.87.87.87.87-.39.87-.87ZM8.09,3.21c.24-.29.56-.38.82-.39l-.16-.37-.17-1.73-.2-.72-.79,3.72c-.01.05-.01.11,0,.17.06-.11.19-.31.5-.67Z"/></svg>' },
+  { id: 'drill-bit', name: 'Drill Bit', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 28"><path d="M6.5,0 L9.5,0 L9.5,8.5 L14,11 L14,21.5 L10.6,21.5 L8,27.6 L5.4,21.5 L2,21.5 L2,11 L6.5,8.5 Z"/></svg>' },
+  { id: 'nozzle', name: 'Nozzle', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25.45 28.35"><polygon points="20.29 12.19 20.29 11.8 22.32 10.63 20.29 9.46 20.29 8.65 22.32 7.48 20.29 6.31 20.29 5.5 22.32 4.33 20.29 3.15 20.29 2.34 22.32 1.17 20.29 0 5.16 0 5.16 1.55 3.13 2.73 5.16 3.9 5.16 4.71 3.13 5.88 5.16 7.05 5.16 7.86 3.13 9.03 5.16 10.21 5.16 11.02 3.13 12.19 0 12.19 0 22.08 5.16 22.08 11.67 28.35 13.78 28.35 20.29 22.08 25.45 22.08 25.45 12.19 20.29 12.19"/></svg>' },
+  { id: 'resistor', name: 'Resistor', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 24"><rect x="6" y="6.5" width="16" height="11" rx="2.5"/><rect x="0" y="10.5" width="7" height="3"/><rect x="21" y="10.5" width="7" height="3"/></svg>' },
+  { id: 'capacitor', name: 'Capacitor', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="9" y="4" width="2.2" height="16"/><rect x="12.8" y="4" width="2.2" height="16"/><rect x="0" y="10.9" width="9" height="2.2"/><rect x="15" y="10.9" width="9" height="2.2"/></svg>' },
+  { id: 'diode', name: 'Diode', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="8,5 8,19 18,12"/><rect x="16.5" y="5" width="2.2" height="14"/><rect x="0" y="10.9" width="8" height="2.2"/><rect x="18.7" y="10.9" width="5.3" height="2.2"/></svg>' },
+  { id: 'ic-chip', name: 'IC Chip', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="6.5" y="6" width="11" height="12" rx="1"/><rect x="2.5" y="7.8" width="4" height="2"/><rect x="2.5" y="11" width="4" height="2"/><rect x="2.5" y="14.2" width="4" height="2"/><rect x="17.5" y="7.8" width="4" height="2"/><rect x="17.5" y="11" width="4" height="2"/><rect x="17.5" y="14.2" width="4" height="2"/></svg>' },
+  { id: 'battery', name: 'Battery', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14.51 28.35"><path d="M10.57,1.45V0H3.94v1.45H1.07c-.59,0-1.07.48-1.07,1.07v24.75c0,.59.48,1.07,1.07,1.07h12.37c.59,0,1.07-.48,1.07-1.07V2.52c0-.59-.48-1.07-1.07-1.07h-2.86ZM10.91,24.02H3.61v-1.73h7.3v1.73ZM10.91,8.9h-2.78v2.78h-1.73v-2.78h-2.78v-1.73h2.78v-2.78h1.73v2.78h2.78v1.73Z"/></svg>' },
+  { id: 'sd-card', name: 'SD Card', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21.55 28.35"><path d="M.09,14.18c.29-.29.91.09,1.11-.33v-3.96c-.29-.47-.99.05-1.19-.47v-5.05c0-.41.19-.77.45-1.08C1.34,2.24,2.61,1.22,3.59.24,3.82.1,4.08.03,4.34,0h16.04c.74.07,1.09.58,1.12,1.3,0,.19-.04.35-.04.51.04,2.17.04,4.35.04,6.52,0,.81.09,1.91,0,2.67s-1,.08-1.06.66l.02,2.62c.12.28.41.16.65.19.31.04.37.21.39.49.05.67,0,1.39,0,2.05,0,1.26-.03,2.54,0,3.81-.13,2.07.16,4.33,0,6.37-.04.54-.34.96-.86,1.11-6.48.09-12.99.01-19.48.04-.53-.01-.98-.35-1.13-.85l-.02-13.18s.04-.09.08-.12ZM5.71,6.23c.02-.07.03-.13.04-.2.1-1.28-.08-2.7,0-3.99,0-.05-.01-.1-.05-.13-.13-.1-1.39,0-1.65-.03l-.11.11v4.14s.08.11.08.11h1.7ZM6.35,1.87l-.05.05v4.25l.05.05h1.68l.05-.05V1.92l-.05-.05h-1.68ZM8.73,1.87l-.05.05v4.25l.05.05h1.65c.08-.07.08-.14.09-.24.11-1.23-.09-2.63,0-3.88l-.09-.24h-1.65ZM11.06,6.19s.08.04.09.04h1.61l.05-.05V1.92l-.05-.05h-1.65l-.05.05v4.27ZM13.49,6.23h1.65l.05-.05V1.96s-.11-.09-.16-.09c-.15-.02-1.49-.02-1.56.02-.03.02-.04.06-.06.09v4.14s.08.11.08.11ZM15.84,1.87l-.05.05v4.25l.05.05h1.65c.19-.33.06-.8.05-1.15-.01-.95,0-1.91,0-2.86,0-.05.07-.35-.05-.35h-1.65ZM18.22,6.23h1.65l.05-.05V1.96s-.06-.06-.07-.07c-.08-.04-1.35-.04-1.52-.02-.09,0-.16,0-.19.1v4.18s.07.07.08.07ZM1.67,4.18l-.08.07v4.26c.02.08.07.09.14.1.47.06,1.08-.04,1.57,0l.07-.08v-4.24c-.02-.09-.05-.1-.14-.11-.48-.06-1.08.04-1.57,0Z"/></svg>' },
+  { id: 'gear', name: 'Gear', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.00,12.00 L22.94,13.12 L22.54,15.15 L19.39,15.06 L18.65,16.44 L17.66,17.66 L18.94,20.53 L17.22,21.68 L15.06,19.39 L13.56,19.85 L12.00,20.00 L10.88,22.94 L8.85,22.54 L8.94,19.39 L7.56,18.65 L6.34,17.66 L3.47,18.94 L2.32,17.22 L4.61,15.06 L4.15,13.56 L4.00,12.00 L1.06,10.88 L1.46,8.85 L4.61,8.94 L5.35,7.56 L6.34,6.34 L5.06,3.47 L6.78,2.32 L8.94,4.61 L10.44,4.15 L12.00,4.00 L13.12,1.06 L15.15,1.46 L15.06,4.61 L16.44,5.35 L17.66,6.34 L20.53,5.06 L21.68,6.78 L19.39,8.94 L19.85,10.44 Z M15.40,12.00 A3.4,3.4 0 1 0 8.60,12.00 A3.4,3.4 0 1 0 15.40,12.00 Z"/></svg>' },
+  { id: 'lightning', name: 'Lightning', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="13,2 4,14 11,14 9,22 20,9 13,9"/></svg>' },
+  { id: 'star', name: 'Star', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="12,2 14.6,9 22,9 16,13.5 18.5,21 12,16.6 5.5,21 8,13.5 2,9 9.4,9"/></svg>' },
+  { id: 'arrow', name: 'Arrow', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="2,9 13,9 13,4 22,12 13,20 13,15 2,15"/></svg>' },
+  { id: 'plus', name: 'Plus', svg: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="9,3 15,3 15,9 21,9 21,15 15,15 15,21 9,21 9,15 3,15 3,9 9,9"/></svg>' }
+];
 
-  // Measure at this size
-  let path = font.getPath(text, 0, 0, fontSize);
-  let bb = path.getBoundingBox();
-  let w = bb.x2 - bb.x1;
-  let h = bb.y2 - bb.y1;
+function fontSizeForCap(capMm) {
+  return capMm * font.unitsPerEm / getCapHeight();
+}
 
-  // Auto-scale down if text doesn't fit usable area
-  const maxW = TEXT_AREA_LEN - 2 * TEXT_MARGIN_X;
-  const maxH = TEXT_AREA_WID - 2 * TEXT_MARGIN_Y;
-  const sx = maxW / w, sy = maxH / h;
-  const scale = Math.min(1, sx, sy);
-  if (scale < 1) {
-    fontSize *= scale;
-    path = font.getPath(text, 0, 0, fontSize);
+// Merge several (non-indexed) extruded geometries into one BufferGeometry.
+function mergeGeoms(geos) {
+  let total = 0;
+  for (const g of geos) total += g.getAttribute('position').array.length;
+  const arr = new Float32Array(total);
+  let o = 0;
+  for (const g of geos) {
+    const p = g.getAttribute('position').array;
+    arr.set(p, o); o += p.length;
   }
+  const m = new THREE.BufferGeometry();
+  m.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+  m.computeVertexNormals();
+  return m;
+}
 
-  // Build shapes with proper contour grouping (custom, more robust than ShapePath.toShapes)
+// Fake-bold: dilate strokes by merging slightly offset copies. Copies sit a hair
+// lower in z so the original's top face wins in overlaps (avoids z-fighting flicker).
+function emboldenGeo(geo, b) {
+  const dirs = [[b,0],[-b,0],[0,b],[0,-b],[b*0.7,b*0.7],[b*0.7,-b*0.7],[-b*0.7,b*0.7],[-b*0.7,-b*0.7]];
+  const copies = [geo];
+  dirs.forEach((d, k) => {
+    const c = geo.clone();
+    c.translate(d[0], d[1], -0.02 - k * 0.004);
+    copies.push(c);
+  });
+  return mergeGeoms(copies);
+}
+
+// Extrude one line of text; returns geometry with boundingBox computed (origin = glyph origin).
+function buildLineGeo(line, fontSize, depth, bold) {
+  const path = font.getPath(line, 0, 0, fontSize);
   const shapes = pathToShapes(path);
   if (!shapes.length) return null;
+  let g = new THREE.ExtrudeGeometry(shapes, { depth, bevelEnabled: false, curveSegments: 6 });
+  if (bold) g = emboldenGeo(g, BOLD_OFFSET);
+  g.computeBoundingBox();
+  return g;
+}
 
-  const geo = new THREE.ExtrudeGeometry(shapes, {
-    depth: depthMm,
-    bevelEnabled: false,
-    curveSegments: 6
-  });
+// Word-wrap text into lines that each fit within maxWidth (mm) at the given cap height.
+// The Classic Pro face is a plain rectangle, so the column width is constant per line.
+function wrapText(text, capMm, maxWidth) {
+  const fontSize = fontSizeForCap(capMm);
+  const pitch = capMm * LINE_GAP;
+  const words = text.trim().split(/\s+/);
+  const lines = [];
+  let cur = '';
+  for (const word of words) {
+    const trial = cur ? cur + ' ' + word : word;
+    if (cur === '' || font.getAdvanceWidth(trial, fontSize) <= maxWidth) {
+      cur = trial;
+    } else {
+      lines.push(cur);
+      cur = word;
+    }
+  }
+  if (cur) lines.push(cur);
+  return { lines, fontSize, pitch };
+}
 
-  // Center on origin so it sits centered on the label
+// Build a word-wrapped text block, auto-shrinking the cap height until it fits within
+// (maxWidth × maxHeight). Each returned line geometry is normalised so its LEFT edge is
+// at x=0 and its cap-top is at y = -i*pitch (line 0 at y=0, block grows downward); the
+// caller positions the block (center-justified, or left-justified beside an icon).
+// Returns { lines:[{geo,w}], blockW, visualH, cap, pitch, fits } or null.
+function buildTextBlock(text, capMm, depth, maxWidth, maxHeight, bold) {
+  let cap = Math.max(MIN_PRINT_CAP, capMm);   // start at the requested size
+  let result = null, fits = false;
+  for (let it = 0; it < 24; it++) {
+    const w = wrapText(text, cap, maxWidth);
+    const lines = [];
+    let overflow = false, blockW = 0;
+    for (let i = 0; i < w.lines.length; i++) {
+      const g = buildLineGeo(w.lines[i], w.fontSize, depth, bold);
+      if (!g) continue;
+      const bb = g.boundingBox;
+      const lw = bb.max.x - bb.min.x;
+      // normalise: left edge -> 0, cap-top of this line -> -i*pitch
+      g.translate(-bb.min.x, (-i * w.pitch) - bb.max.y, 0);
+      lines.push({ geo: g, w: lw });
+      if (lw > maxWidth + 0.1) overflow = true;
+      if (lw > blockW) blockW = lw;
+    }
+    const visualH = (w.lines.length - 1) * w.pitch + cap;
+    const tooTall = visualH > maxHeight + 0.1;
+    fits = !overflow && !tooTall;
+    result = { lines, blockW, visualH, cap, pitch: w.pitch, fits };
+    // Stop once it fits, or once we've hit the printable floor (don't shrink further).
+    if (fits || cap <= MIN_PRINT_CAP + 1e-6) break;
+    cap = Math.max(MIN_PRINT_CAP, cap * 0.92);
+  }
+  if (!result || !result.lines.length) return null;
+  return result;
+}
+
+// Parse an SVG string into THREE.Shapes (for icons, built-in or uploaded).
+function shapesFromSVG(svgText) {
+  const loader = new THREE.SVGLoader();
+  const data = loader.parse(svgText);
+  let shapes = [];
+  for (const p of data.paths) {
+    shapes = shapes.concat(THREE.SVGLoader.createShapes(p));
+  }
+  return shapes;
+}
+
+// Build the left badge (icon or letter/number), sized to ~sizeMm tall, centered at origin.
+// Returns { geo, w } or null.
+function buildBadgeGeo(badge, sizeMm, depth) {
+  let shapes = null, isIcon = false;
+  if (badge.type === 'char' && badge.value && badge.value.trim()) {
+    const fs = fontSizeForCap(sizeMm);
+    shapes = pathToShapes(font.getPath(badge.value.trim(), 0, 0, fs));
+  } else if (badge.type === 'icon') {
+    let svg = badge.svg;
+    if (!svg && badge.value) {
+      const it = ICON_LIBRARY.find(i => i.id === badge.value);
+      if (it) svg = it.svg;
+    }
+    if (!svg) return null;
+    try { shapes = shapesFromSVG(svg); } catch (e) { return null; }
+    isIcon = true;
+  }
+  if (!shapes || !shapes.length) return null;
+
+  let geo = new THREE.ExtrudeGeometry(shapes, { depth, bevelEnabled: false, curveSegments: 8 });
+  if (isIcon) {
+    // SVG y points down — flip upright with a proper rotation (preserves winding so
+    // normals stay outward), then push the extrusion back to z = [0, depth].
+    geo.rotateX(Math.PI);
+    geo.translate(0, 0, depth);
+  }
   geo.computeBoundingBox();
-  const cbb = geo.boundingBox;
-  const cx = (cbb.min.x + cbb.max.x) / 2;
-  const cy = (cbb.min.y + cbb.max.y) / 2;
-  geo.translate(-cx, -cy, 0);
+  let bb = geo.boundingBox;
+  const h = bb.max.y - bb.min.y, wd = bb.max.x - bb.min.x;
+  if (h <= 0 || wd <= 0) return null;
+  const maxH = AREA_TOP - AREA_BOTTOM;       // never taller than the usable area
+  const targetH = Math.min(sizeMm, maxH);
+  let s = targetH / h;
+  const maxW = targetH * BADGE_MAX_W_RATIO;   // keep wide icons from crowding the text
+  if (wd * s > maxW) s = maxW / wd;
+  geo.scale(s, s, 1);
+  geo.computeBoundingBox(); bb = geo.boundingBox;
+  geo.translate(-(bb.min.x + bb.max.x) / 2, -(bb.min.y + bb.max.y) / 2, 0);
+  geo.computeBoundingBox(); bb = geo.boundingBox;
+  return { geo, w: bb.max.x - bb.min.x, h: bb.max.y - bb.min.y };
+}
 
-  return geo;
+// Build all meshes for one label (text + optional badge), positioned in label-local XY.
+// Text/badge sit at z=0 here; the caller lifts them to TOP_Z.
+// Layout rules for the rectangular Classic Pro face:
+//   • text only   -> each line centered horizontally; block centered vertically
+//   • icon only   -> icon centered on the label
+//   • icon + text -> icon to the left of the text; every text line left-justified to the
+//                    icon; icon vertically centered to the text block; the whole
+//                    icon+text group centered both horizontally and vertically.
+function buildLabelMeshes(data, capMm, depth, badgeSize, bold) {
+  let badgeGeo = null, badgeW = 0, badgeH = 0;
+  if (data.badge && data.badge.type && data.badge.type !== 'none') {
+    const b = buildBadgeGeo(data.badge, badgeSize, depth);
+    if (b) { badgeGeo = b.geo; badgeW = b.w; badgeH = b.h; }
+  }
+  const hasText = !!(data.text && data.text.trim());
+  const usableW = AREA_RIGHT - AREA_LEFT;
+  const usableH = AREA_TOP - AREA_BOTTOM;
+
+  // Text column: full usable width, minus the icon + gap when an icon is present.
+  const textMaxW = hasText
+    ? Math.max(1, usableW - (badgeGeo ? badgeW + BADGE_GAP : 0))
+    : 0;
+  const tb = hasText
+    ? buildTextBlock(data.text, capMm, depth, textMaxW, usableH, bold) : null;
+
+  let textGeo = null, textFits = true;
+  if (tb) {
+    textFits = tb.fits;
+    const topY = AREA_CY + tb.visualH / 2;   // cap-top of the first line
+    const geos = [];
+    if (badgeGeo) {
+      // icon + text: center the [icon | gap | text] group horizontally.
+      const groupW = badgeW + BADGE_GAP + tb.blockW;
+      const groupLeft = AREA_CX - groupW / 2;
+      const textLeft = groupLeft + badgeW + BADGE_GAP;
+      for (const ln of tb.lines) { ln.geo.translate(textLeft, topY, 0); geos.push(ln.geo); }
+      // icon vertically centered to the text block, sitting to its left.
+      badgeGeo.translate(groupLeft + badgeW / 2, AREA_CY, 0);
+    } else {
+      // text only: center each line horizontally; block centered vertically.
+      for (const ln of tb.lines) { ln.geo.translate(AREA_CX - ln.w / 2, topY, 0); geos.push(ln.geo); }
+    }
+    textGeo = mergeGeoms(geos);
+  } else if (badgeGeo) {
+    // icon only: center it on the label.
+    badgeGeo.translate(AREA_CX, AREA_CY, 0);
+  }
+
+  return { textGeo, badgeGeo, textFits };
 }
 
 // ----- Robust path → shapes conversion -----
@@ -654,9 +943,145 @@ function pathToShapes(otPath) {
 //============================================================
 // Scene rebuild
 //============================================================
+function getBadgeSize() {
+  const el = document.getElementById('badge-size');
+  const v = el ? parseFloat(el.value) : 14;
+  return isNaN(v) ? 14 : v;
+}
+
+function getBold() {
+  const el = document.getElementById('bold-text');
+  return !!(el && el.checked);
+}
+
+// Read every label row into { text, badge } objects.
+function getLabelData() {
+  const rows = document.querySelectorAll('#labels .row');
+  const out = [];
+  rows.forEach(row => {
+    const input = row.querySelector('input.label-text');
+    const text = input ? input.value : '';
+    const bt = row.dataset.badgeType || 'none';
+    const badge = { type: bt };
+    if (bt === 'char') badge.value = row.dataset.badgeValue || '';
+    else if (bt === 'icon') {
+      if (row.dataset.badgeIcon) badge.value = row.dataset.badgeIcon;
+      if (row._badgeSvg) badge.svg = row._badgeSvg;
+    }
+    const hasBadge = (bt === 'char' && (badge.value || '').trim()) ||
+                     (bt === 'icon' && (badge.value || badge.svg));
+    if ((text && text.trim()) || hasBadge) out.push({ text, badge });
+  });
+  return out;
+}
+
+// Text-only list (used for filename + count).
 function getCurrentLabels() {
-  const inputs = document.querySelectorAll('#labels input[type="text"]');
-  return Array.from(inputs).map(i => i.value).filter(s => s.trim().length > 0);
+  return getLabelData().map(d => (d.text || '').trim()).filter(s => s.length > 0);
+}
+
+function getBedSize() {
+  const w = parseFloat(document.getElementById('bed-w').value);
+  const l = parseFloat(document.getElementById('bed-l').value);
+  return { bedW: (isNaN(w) || w < 20) ? 250 : w, bedL: (isNaN(l) || l < 20) ? 220 : l };
+}
+
+function getPurge() {
+  const el = document.getElementById('reserve-purge');
+  if (!el || !el.checked) return null;
+  const w = parseFloat(document.getElementById('purge-w').value);
+  const l = parseFloat(document.getElementById('purge-l').value);
+  return { w: (isNaN(w) || w < 5) ? PURGE_SIZE : w, l: (isNaN(l) || l < 5) ? PURGE_SIZE : l };
+}
+
+// True if a label cell (centered at cellX,cellY in plate-centered coords) intrudes into
+// the reserved top-right pw×pl corner of the plate.
+function purgeOverlaps(cellX, cellY, bedW, bedL, pw, pl) {
+  return (cellX + LABEL_LEN / 2 > bedW / 2 - pw) &&
+         (cellY + LABEL_WID / 2 > bedL / 2 - pl);
+}
+
+// Arrange n labels into columns that fill the plate length, starting a new column to
+// the right when a column is full. Returns cell centers in plate-centered coords.
+// When `purge` is set, the top-right corner is kept clear for a prime/purge block.
+function computeLayout(n, bedW, bedL, purge) {
+  const rowH = LABEL_WID + ROW_SPACING;
+  const colW = LABEL_LEN + COL_SPACING;
+  const usableL = bedL - 2 * BED_MARGIN;
+  const usableW = bedW - 2 * BED_MARGIN;
+  const perCol = Math.max(1, Math.floor((usableL + ROW_SPACING) / rowH));
+
+  if (!purge) {
+    const cols = Math.max(1, Math.ceil(Math.max(1, n) / perCol));
+    const rowsUsed = Math.min(Math.max(1, n), perCol);
+    const gridW = cols * LABEL_LEN + (cols - 1) * COL_SPACING;
+    const gridH = rowsUsed * LABEL_WID + (rowsUsed - 1) * ROW_SPACING;
+    const startX = -gridW / 2 + LABEL_LEN / 2;
+    const startY = gridH / 2 - LABEL_WID / 2;
+    const positions = [];
+    for (let i = 0; i < n; i++) {
+      const col = Math.floor(i / perCol), row = i % perCol;
+      positions.push({ x: startX + col * colW, y: startY - row * rowH });
+    }
+    return { positions, cols };
+  }
+
+  // Purge on: lay out against the full plate grid (centered to the bed) and skip the
+  // cells in the reserved top-right corner.
+  const cols = Math.max(1, Math.floor((usableW + COL_SPACING) / colW));
+  const gridW = cols * LABEL_LEN + (cols - 1) * COL_SPACING;
+  const gridH = perCol * LABEL_WID + (perCol - 1) * ROW_SPACING;
+  const startX = -gridW / 2 + LABEL_LEN / 2;
+  const startY = gridH / 2 - LABEL_WID / 2;
+  const cells = [];
+  for (let col = 0; col < cols; col++) {
+    for (let row = 0; row < perCol; row++) {
+      const x = startX + col * colW, y = startY - row * rowH;
+      if (!purgeOverlaps(x, y, bedW, bedL, purge.w, purge.l)) cells.push({ x, y });
+    }
+  }
+  return { positions: cells.slice(0, n), cols };
+}
+
+function updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge) {
+  if (bedOutline) {
+    bedOutline.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+    scene.remove(bedOutline);
+  }
+  bedOutline = new THREE.Group();
+  const hw = bedW / 2, hl = bedL / 2;
+  for (let p = 0; p < nPlates; p++) {
+    const cx = -platesW / 2 + bedW / 2 + p * platePitch;
+    const plane = new THREE.Mesh(
+      new THREE.PlaneGeometry(bedW, bedL),
+      new THREE.MeshBasicMaterial({ color: 0x1f2024, transparent: true, opacity: 0.55 })
+    );
+    plane.position.set(cx, 0, -0.05);
+    bedOutline.add(plane);
+    const pts = [cx-hw,-hl,0, cx+hw,-hl,0, cx+hw,hl,0, cx-hw,hl,0, cx-hw,-hl,0];
+    const bg = new THREE.BufferGeometry();
+    bg.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    bedOutline.add(new THREE.Line(bg, new THREE.LineBasicMaterial({ color: 0x5a5b5f })));
+
+    if (purge) {
+      // Reserved top-right purge/prime block.
+      const pw = purge.w, pl = purge.l;
+      const bcx = cx + hw - pw / 2, bcy = hl - pl / 2;
+      const pb = new THREE.Mesh(
+        new THREE.PlaneGeometry(pw, pl),
+        new THREE.MeshBasicMaterial({ color: 0xee7a30, transparent: true, opacity: 0.18 })
+      );
+      pb.position.set(bcx, bcy, 0.01);
+      bedOutline.add(pb);
+      const px0 = cx + hw - pw, px1 = cx + hw, py0 = hl - pl, py1 = hl;
+      const pp = [px0,py0,0, px1,py0,0, px1,py1,0, px0,py1,0, px0,py0,0];
+      const pg = new THREE.BufferGeometry();
+      pg.setAttribute('position', new THREE.Float32BufferAttribute(pp, 3));
+      bedOutline.add(new THREE.Line(pg, new THREE.LineBasicMaterial({ color: 0xee7a30 })));
+    }
+  }
+  bedOutline.position.z = -0.02;
+  scene.add(bedOutline);
 }
 
 function rebuild() {
@@ -669,9 +1094,11 @@ function rebuild() {
   labelGroup = new THREE.Group();
   scene.add(labelGroup);
 
-  const labels = getCurrentLabels();
+  const labels = getLabelData();
   const capH = parseFloat(document.getElementById('font-size').value);
   const depth = parseFloat(document.getElementById('text-depth').value);
+  const badgeSize = getBadgeSize();
+  const bold = getBold();
 
   // Base plate shared geometry
   const baseGeo = new THREE.BufferGeometry();
@@ -679,31 +1106,58 @@ function rebuild() {
   baseGeo.setIndex(BASE_TRIS);
   baseGeo.computeVertexNormals();
 
-  const totalH = Math.max(1, labels.length) * LABEL_WID + Math.max(0, labels.length - 1) * ROW_SPACING;
-  const startY = -totalH / 2 + LABEL_WID / 2;
+  const { bedW, bedL } = getBedSize();
+  const purge = getPurge();
+  const cap = plateCapacity(bedW, bedL, purge);
+  const nPlates = Math.max(1, Math.ceil(Math.max(1, labels.length) / cap.perPlate));
+  const PLATE_GAP = 24;
+  const platePitch = bedW + PLATE_GAP;
+  const platesW = nPlates * bedW + (nPlates - 1) * PLATE_GAP;
+  updateBedOutlines(nPlates, bedW, bedL, platePitch, platesW, purge);
 
-  labels.forEach((text, i) => {
-    const yOffset = startY + i * (LABEL_WID + ROW_SPACING);
+  let anyOverflow = false;
+  for (let p = 0; p < nPlates; p++) {
+    const slice = labels.slice(p * cap.perPlate, (p + 1) * cap.perPlate);
+    const lay = computeLayout(slice.length, bedW, bedL, purge);
+    const plateCenterX = -platesW / 2 + bedW / 2 + p * platePitch;
+    slice.forEach((data, j) => {
+      const pos = lay.positions[j] || { x: 0, y: 0 };
+      const x = pos.x + plateCenterX, y = pos.y;
 
-    const baseMesh = new THREE.Mesh(baseGeo, baseMaterial);
-    baseMesh.position.set(0, yOffset, 0);
-    labelGroup.add(baseMesh);
+      const baseMesh = new THREE.Mesh(baseGeo, baseMaterial);
+      baseMesh.position.set(x, y, 0);
+      labelGroup.add(baseMesh);
 
-    const textGeo = buildTextGeometry(text, capH, depth);
-    if (textGeo) {
-      const textMesh = new THREE.Mesh(textGeo, textMaterial);
-      textMesh.position.set(0, yOffset, LABEL_HT);
-      labelGroup.add(textMesh);
-    }
-  });
+      const { textGeo, badgeGeo, textFits } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+      if (!textFits) anyOverflow = true;
+      if (textGeo) {
+        const m = new THREE.Mesh(textGeo, textMaterial);
+        m.position.set(x, y, LABEL_HT);
+        labelGroup.add(m);
+      }
+      if (badgeGeo) {
+        const m = new THREE.Mesh(badgeGeo, textMaterial);
+        m.position.set(x, y, LABEL_HT);
+        labelGroup.add(m);
+      }
+    });
+  }
 
-  document.getElementById('label-count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'}`;
+  const plateTxt = nPlates > 1 ? ` · ${nPlates} plates` : '';
+  document.getElementById('label-count').textContent = `${labels.length} label${labels.length === 1 ? '' : 's'}${plateTxt}`;
 
-  if (!rebuild._framed && labels.length) {
-    rebuild._framed = true;
-    const dist = Math.max(60, totalH * 1.5 + 30);
-    camera.position.set(dist * 0.5, -dist * 0.6, dist * 0.7);
-    controls.setTarget(new THREE.Vector3(0, 0, LABEL_HT / 2));
+  if (anyOverflow) {
+    setStatus(`Some text is long — held at the ${MIN_PRINT_CAP}mm minimum printable size. Shorten it for larger, cleaner text.`, 'err');
+  } else if (font && !document.getElementById('download').disabled) {
+    setStatus(nPlates > 1 ? `Ready — exports as ${nPlates} separate plate files.` : 'Ready.', 'ok');
+  }
+
+  const span = Math.max(platesW, bedL);
+  if (rebuild._span !== span) {
+    rebuild._span = span;
+    const dist = span * 1.75 + 50;
+    camera.position.set(0, -dist * 0.28, dist * 0.95);
+    controls.setTarget(new THREE.Vector3(0, 0, 0));
   }
 }
 
@@ -775,147 +1229,188 @@ function buildBasePlateGeometry() {
   return g;
 }
 
-async function generate3MF() {
-  setStatus('Generating 3MF…');
-  await new Promise(r => setTimeout(r, 10));
-
-  const labels = getCurrentLabels();
-  if (!labels.length) {
-    setStatus('Add at least one label.', 'err');
-    return;
+// How many labels fit on one plate (columns × rows) for a given bed, minus any cells
+// removed by the reserved purge corner.
+function plateCapacity(bedW, bedL, purge) {
+  const rowH = LABEL_WID + ROW_SPACING, colW = LABEL_LEN + COL_SPACING;
+  const usableL = bedL - 2 * BED_MARGIN, usableW = bedW - 2 * BED_MARGIN;
+  const perCol = Math.max(1, Math.floor((usableL + ROW_SPACING) / rowH));
+  const colsPerPlate = Math.max(1, Math.floor((usableW + COL_SPACING) / colW));
+  let perPlate = perCol * colsPerPlate;
+  if (purge) {
+    const gridW = colsPerPlate * LABEL_LEN + (colsPerPlate - 1) * COL_SPACING;
+    const gridH = perCol * LABEL_WID + (perCol - 1) * ROW_SPACING;
+    const startX = -gridW / 2 + LABEL_LEN / 2, startY = gridH / 2 - LABEL_WID / 2;
+    let reserved = 0;
+    for (let c = 0; c < colsPerPlate; c++) {
+      for (let r = 0; r < perCol; r++) {
+        if (purgeOverlaps(startX + c * colW, startY - r * rowH, bedW, bedL, purge.w, purge.l)) reserved++;
+      }
+    }
+    perPlate = Math.max(1, perPlate - reserved);
   }
-  const capH = parseFloat(document.getElementById('font-size').value);
-  const depth = parseFloat(document.getElementById('text-depth').value);
+  return { perCol, colsPerPlate, perPlate };
+}
 
-  // Build resources
-  // ID convention: 1 = shared base plate mesh
-  // For each label i (0-indexed): id = 100 + 2*i = text mesh, id = 101 + 2*i = assembly object
-  const baseGeo = buildBasePlateGeometry();
-  const baseMeshXml = geometryToMeshXml(baseGeo);
-
-  let resources = '';
-  const builds = [];
-
-  // Shared base plate object
-  resources +=
+// Build a two-color 3MF (base = filament 1, text + badge = filament 2) for one plate.
+// `lay` is a single-plate layout (centered at origin). Returns a Blob.
+async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
+  const baseMeshXml = geometryToMeshXml(buildBasePlateGeometry());
+  let resources =
     `<object id="1" type="model" p:UUID="00000000-0000-0000-0000-000000000001">` +
-    `<metadata name="name">Label Base</metadata>` +
-    `<metadata name="extruder">1</metadata>` +
-    `${baseMeshXml}` +
-    `</object>`;
+    `<metadata name="name">Label Base</metadata><metadata name="extruder">1</metadata>` +
+    `${baseMeshXml}</object>`;
+  const builds = [], partInfo = [];
 
-  const totalH = labels.length * LABEL_WID + (labels.length - 1) * ROW_SPACING;
-  const startY = -totalH / 2 + LABEL_WID / 2;
-
-  labels.forEach((text, i) => {
-    const textGeo = buildTextGeometry(text, capH, depth);
-    if (!textGeo) return;
-
-    const textId = 100 + 2 * i;
-    const asmId  = 101 + 2 * i;
-    const textMeshXml = geometryToMeshXml(textGeo);
-
-    // Text mesh object (printed at Z=LABEL_HT relative to component origin)
-    resources +=
-      `<object id="${textId}" type="model" p:UUID="00000000-0000-0000-0000-${String(textId).padStart(12, '0')}">` +
-      `<metadata name="name">${escapeXml(text)} text</metadata>` +
-      `<metadata name="extruder">2</metadata>` +
-      `${textMeshXml}` +
-      `</object>`;
-
-    // Assembly object referencing base + text
-    // Transform matrix is 12 numbers: row-major 3x4 (3MF spec)
-    //   m11 m12 m13   m21 m22 m23   m31 m32 m33   tx ty tz
-    // For identity: 1 0 0  0 1 0  0 0 1  0 0 0
-    // For text translated up to Z=LABEL_HT: 1 0 0 0 1 0 0 0 1 0 0 1.35
-    resources +=
-      `<object id="${asmId}" type="model" p:UUID="00000000-0000-0000-0000-${String(asmId).padStart(12, '0')}">` +
-      `<metadata name="name">${escapeXml(text)}</metadata>` +
-      `<components>` +
-      `<component objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>` +
-      `<component objectid="${textId}" transform="1 0 0 0 1 0 0 0 1 0 0 ${LABEL_HT}"/>` +
-      `</components>` +
-      `</object>`;
-
-    // Build item: position label at (0, yOffset, 0) on plate (3MF Z-up plate origin)
-    const yOffset = startY + i * (LABEL_WID + ROW_SPACING);
-    builds.push(
-      `<item objectid="${asmId}" transform="1 0 0 0 1 0 0 0 1 0 ${yOffset.toFixed(4)} 0" p:UUID="00000000-0000-0000-0000-${String(1000 + i).padStart(12, '0')}"/>`);
+  slice.forEach((data, i) => {
+    const { textGeo, badgeGeo } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+    if (!textGeo && !badgeGeo) return;
+    const textId = 100 + 3 * i, badgeId = 101 + 3 * i, asmId = 102 + 3 * i;
+    const name = (data.text && data.text.trim()) ? data.text.trim()
+      : (data.badge && data.badge.value ? String(data.badge.value) : 'icon');
+    let comps = `<component objectid="1" transform="1 0 0 0 1 0 0 0 1 0 0 0"/>`;
+    if (textGeo) {
+      resources += `<object id="${textId}" type="model" p:UUID="00000000-0000-0000-0000-${String(textId).padStart(12,'0')}">` +
+        `<metadata name="name">${escapeXml(name)} text</metadata><metadata name="extruder">2</metadata>${geometryToMeshXml(textGeo)}</object>`;
+      comps += `<component objectid="${textId}" transform="1 0 0 0 1 0 0 0 1 0 0 ${LABEL_HT}"/>`;
+    }
+    if (badgeGeo) {
+      resources += `<object id="${badgeId}" type="model" p:UUID="00000000-0000-0000-0000-${String(badgeId).padStart(12,'0')}">` +
+        `<metadata name="name">${escapeXml(name)} badge</metadata><metadata name="extruder">2</metadata>${geometryToMeshXml(badgeGeo)}</object>`;
+      comps += `<component objectid="${badgeId}" transform="1 0 0 0 1 0 0 0 1 0 0 ${LABEL_HT}"/>`;
+    }
+    resources += `<object id="${asmId}" type="model" p:UUID="00000000-0000-0000-0000-${String(asmId).padStart(12,'0')}">` +
+      `<metadata name="name">${escapeXml(name)}</metadata><components>${comps}</components></object>`;
+    partInfo.push({ asmId, name, textId: textGeo ? textId : null, badgeId: badgeGeo ? badgeId : null });
+    const pos = lay.positions[i] || { x: 0, y: 0 };
+    const px = (pos.x + bedW / 2).toFixed(4), py = (pos.y + bedL / 2).toFixed(4);
+    builds.push(`<item objectid="${asmId}" transform="1 0 0 0 1 0 0 0 1 ${px} ${py} 0" p:UUID="00000000-0000-0000-0000-${String(1000 + i).padStart(12,'0')}"/>`);
   });
-
-  const buildXml = builds.join('');
 
   const modelXml =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<model unit="millimeter" xml:lang="en-US" ` +
-    `xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" ` +
-    `xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06">` +
-    `<metadata name="Application">GEN2 Label Generator</metadata>` +
+    `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06">` +
+    `<metadata name="Application">GEN2 Classic Pro Label Generator</metadata>` +
     `<metadata name="Designer">Jerrari3D</metadata>` +
-    `<metadata name="CreationDate">${new Date().toISOString().slice(0, 10)}</metadata>` +
-    `<resources>${resources}</resources>` +
-    `<build>${buildXml}</build>` +
-    `</model>`;
-
-  // [Content_Types].xml
+    `<metadata name="CreationDate">${new Date().toISOString().slice(0,10)}</metadata>` +
+    `<resources>${resources}</resources><build>${builds.join('')}</build></model>`;
   const contentTypes =
-    `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
+    `<?xml version="1.0" encoding="UTF-8"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
     `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
-    `<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>` +
-    `</Types>`;
-
-  // _rels/.rels
+    `<Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/></Types>`;
   const rels =
-    `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
-    `<Relationship Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/>` +
-    `</Relationships>`;
-
-  // Bambu / Orca model_settings.config (assigns filaments per part)
-  // Maps each child object (part) to a filament index
+    `<?xml version="1.0" encoding="UTF-8"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+    `<Relationship Id="rel-1" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel" Target="/3D/3dmodel.model"/></Relationships>`;
   let modelSettings = `<?xml version="1.0" encoding="UTF-8"?>\n<config>`;
-  labels.forEach((text, i) => {
-    const textId = 100 + 2 * i;
-    const asmId  = 101 + 2 * i;
-    modelSettings +=
-      `<object id="${asmId}">` +
-      `<metadata key="name" value="${escapeXml(text)}"/>` +
-      `<part id="1" subtype="normal_part">` +
-      `<metadata key="name" value="Base"/>` +
-      `<metadata key="extruder" value="1"/>` +
-      `</part>` +
-      `<part id="${textId}" subtype="normal_part">` +
-      `<metadata key="name" value="${escapeXml(text)} text"/>` +
-      `<metadata key="extruder" value="2"/>` +
-      `</part>` +
-      `</object>`;
+  partInfo.forEach(p => {
+    modelSettings += `<object id="${p.asmId}"><metadata key="name" value="${escapeXml(p.name)}"/>` +
+      `<part id="1" subtype="normal_part"><metadata key="name" value="Base"/><metadata key="extruder" value="1"/></part>`;
+    if (p.textId != null) modelSettings += `<part id="${p.textId}" subtype="normal_part"><metadata key="name" value="${escapeXml(p.name)} text"/><metadata key="extruder" value="2"/></part>`;
+    if (p.badgeId != null) modelSettings += `<part id="${p.badgeId}" subtype="normal_part"><metadata key="name" value="${escapeXml(p.name)} badge"/><metadata key="extruder" value="2"/></part>`;
+    modelSettings += `</object>`;
   });
   modelSettings += `</config>`;
 
-  // Pack zip
   const zip = new JSZip();
   zip.file('[Content_Types].xml', contentTypes);
   zip.folder('_rels').file('.rels', rels);
   zip.folder('3D').file('3dmodel.model', modelXml);
   zip.folder('Metadata').file('model_settings.config', modelSettings);
+  return zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+}
 
-  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+// ---- STL (single color): collect world-space triangles and write binary STL ----
+function pushGeomTris(geom, dx, dy, dz, out) {
+  const pos = geom.getAttribute('position'), idx = geom.getIndex();
+  const v = (i) => [pos.getX(i) + dx, pos.getY(i) + dy, pos.getZ(i) + dz];
+  if (idx) {
+    for (let i = 0; i < idx.count; i += 3) out.push(v(idx.getX(i)), v(idx.getX(i + 1)), v(idx.getX(i + 2)));
+  } else {
+    for (let i = 0; i < pos.count; i += 3) out.push(v(i), v(i + 1), v(i + 2));
+  }
+}
 
-  // Trigger download
-  const filename = labels.length === 1
-    ? `label_${labels[0].replace(/[^a-z0-9_-]/gi, '_')}.3mf`
-    : `gen2_labels_${labels.length}.3mf`;
+function trisToStlBlob(tris) {
+  const nT = tris.length / 3;
+  const buf = new ArrayBuffer(84 + nT * 50);
+  const dv = new DataView(buf);
+  dv.setUint32(80, nT, true);
+  let off = 84;
+  for (let t = 0; t < nT; t++) {
+    const a = tris[t * 3], b = tris[t * 3 + 1], c = tris[t * 3 + 2];
+    const ux = b[0]-a[0], uy = b[1]-a[1], uz = b[2]-a[2];
+    const vx = c[0]-a[0], vy = c[1]-a[1], vz = c[2]-a[2];
+    let nx = uy*vz - uz*vy, ny = uz*vx - ux*vz, nz = ux*vy - uy*vx;
+    const L = Math.hypot(nx, ny, nz) || 1; nx /= L; ny /= L; nz /= L;
+    dv.setFloat32(off, nx, true); dv.setFloat32(off + 4, ny, true); dv.setFloat32(off + 8, nz, true); off += 12;
+    for (const p of [a, b, c]) { dv.setFloat32(off, p[0], true); dv.setFloat32(off + 4, p[1], true); dv.setFloat32(off + 8, p[2], true); off += 12; }
+    dv.setUint16(off, 0, true); off += 2;
+  }
+  return new Blob([buf], { type: 'application/octet-stream' });
+}
+
+function buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) {
+  const baseGeo = buildBasePlateGeometry();
+  const tris = [];
+  slice.forEach((data, i) => {
+    const pos = lay.positions[i] || { x: 0, y: 0 };
+    const px = pos.x + bedW / 2, py = pos.y + bedL / 2;
+    pushGeomTris(baseGeo, px, py, 0, tris);
+    const { textGeo, badgeGeo } = buildLabelMeshes(data, capH, depth, badgeSize, bold);
+    if (textGeo) pushGeomTris(textGeo, px, py, LABEL_HT, tris);
+    if (badgeGeo) pushGeomTris(badgeGeo, px, py, LABEL_HT, tris);
+  });
+  return trisToStlBlob(tris);
+}
+
+function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
-  setStatus(`Saved ${filename} (${(blob.size / 1024).toFixed(1)} KB)`, 'ok');
+// Export everything: one file per plate (3MF or STL), zipped together if >1 plate.
+async function doExport() {
+  const labels = getLabelData();
+  if (!labels.length) { setStatus('Add at least one label.', 'err'); return; }
+  const fmt = (document.getElementById('export-format') || {}).value || '3mf';
+  setStatus(`Generating ${fmt.toUpperCase()}…`);
+  await new Promise(r => setTimeout(r, 10));
+
+  const capH = parseFloat(document.getElementById('font-size').value);
+  const depth = parseFloat(document.getElementById('text-depth').value);
+  const badgeSize = getBadgeSize();
+  const bold = getBold();
+  const { bedW, bedL } = getBedSize();
+  const purge = getPurge();
+  const cap = plateCapacity(bedW, bedL, purge);
+  const nPlates = Math.max(1, Math.ceil(labels.length / cap.perPlate));
+
+  const files = [];
+  for (let p = 0; p < nPlates; p++) {
+    const slice = labels.slice(p * cap.perPlate, (p + 1) * cap.perPlate);
+    const lay = computeLayout(slice.length, bedW, bedL, purge);
+    const suffix = nPlates > 1 ? `_plate${p + 1}of${nPlates}` : '';
+    if (fmt === 'stl') {
+      files.push({ name: `classicpro_labels${suffix}.stl`, blob: buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+    } else {
+      files.push({ name: `classicpro_labels${suffix}.3mf`, blob: await buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+    }
+  }
+
+  if (files.length === 1) {
+    downloadBlob(files[0].blob, files[0].name);
+    setStatus(`Saved ${files[0].name} (${(files[0].blob.size / 1024).toFixed(1)} KB)`, 'ok');
+  } else {
+    const zip = new JSZip();
+    files.forEach(f => zip.file(f.name, f.blob));
+    const z = await zip.generateAsync({ type: 'blob' });
+    const zname = `gen2_classicpro_labels_${nPlates}plates_${fmt}.zip`;
+    downloadBlob(z, zname);
+    setStatus(`Saved ${zname} — ${nPlates} separate plate files (${(z.size / 1024).toFixed(1)} KB)`, 'ok');
+  }
 }
 
 //============================================================
@@ -927,25 +1422,158 @@ function setStatus(msg, kind) {
   el.className = kind || '';
 }
 
-function addLabelRow(value = '') {
+let activeBadgeRow = null;
+
+function addLabelRow(value = '', badge = null) {
   const container = document.getElementById('labels');
-  const idx = container.children.length + 1;
   const row = document.createElement('div');
   row.className = 'row';
+  row.dataset.badgeType = 'none';
   row.innerHTML =
-    `<span class="idx">${idx}</span>` +
-    `<input type="text" maxlength="20" placeholder="e.g. M3-12" value="${value.replace(/"/g, '&quot;')}">` +
+    `<span class="idx"></span>` +
+    `<button class="badge-btn" title="Add icon or letter (optional)">+</button>` +
+    `<input class="label-text" type="text" maxlength="48" placeholder="Label text" value="${value.replace(/"/g, '&quot;')}">` +
     `<button class="remove" title="Remove">×</button>`;
   container.appendChild(row);
+  renumberRows();
 
-  const input = row.querySelector('input');
+  const input = row.querySelector('input.label-text');
   input.addEventListener('input', debounce(rebuild, 300));
   row.querySelector('.remove').addEventListener('click', () => {
+    if (activeBadgeRow === row) closeBadgePopover();
     row.remove();
     renumberRows();
     rebuild();
   });
+  row.querySelector('.badge-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    openBadgePopover(row);
+  });
+
+  if (badge) applyBadge(row, badge);
+  updateBadgeBtn(row);
   return input;
+}
+
+// Reflect a row's badge state onto its button.
+function updateBadgeBtn(row) {
+  const btn = row.querySelector('.badge-btn');
+  const t = row.dataset.badgeType;
+  btn.classList.toggle('set', !!t && t !== 'none');
+  if (t === 'char') {
+    btn.textContent = (row.dataset.badgeValue || '+').slice(0, 2);
+  } else if (t === 'icon') {
+    let svg = row._badgeSvg;
+    if (!svg && row.dataset.badgeIcon) {
+      const it = ICON_LIBRARY.find(i => i.id === row.dataset.badgeIcon);
+      if (it) svg = it.svg;
+    }
+    btn.innerHTML = svg || '+';
+  } else {
+    btn.textContent = '+';
+  }
+}
+
+function applyBadge(row, badge) {
+  row.dataset.badgeType = badge.type || 'none';
+  delete row.dataset.badgeValue;
+  delete row.dataset.badgeIcon;
+  row._badgeSvg = null;
+  if (badge.type === 'char') {
+    row.dataset.badgeValue = badge.value || '';
+  } else if (badge.type === 'icon') {
+    if (badge.svg) row._badgeSvg = badge.svg;
+    if (badge.value) row.dataset.badgeIcon = badge.value;
+  }
+  updateBadgeBtn(row);
+}
+
+function setActiveRowBadge(type, value, svg) {
+  if (!activeBadgeRow) return;
+  applyBadge(activeBadgeRow, { type, value, svg });
+  rebuild();
+}
+
+function openBadgePopover(row) {
+  activeBadgeRow = row;
+  const pop = document.getElementById('badge-popover');
+  const charInput = document.getElementById('bp-char');
+  charInput.value = row.dataset.badgeType === 'char' ? (row.dataset.badgeValue || '') : '';
+  pop.hidden = false;
+  const r = row.querySelector('.badge-btn').getBoundingClientRect();
+  const top = Math.min(window.innerHeight - pop.offsetHeight - 8, r.bottom + 6);
+  const left = Math.min(window.innerWidth - pop.offsetWidth - 8, Math.max(8, r.left));
+  pop.style.top = Math.max(8, top) + 'px';
+  pop.style.left = left + 'px';
+  charInput.focus();
+}
+
+function closeBadgePopover() {
+  document.getElementById('badge-popover').hidden = true;
+  activeBadgeRow = null;
+}
+
+function setupBadgePicker() {
+  const pop = document.getElementById('badge-popover');
+  const grid = document.getElementById('bp-icons');
+
+  // Built-in icon grid
+  ICON_LIBRARY.forEach(it => {
+    const cell = document.createElement('button');
+    cell.className = 'bp-icon';
+    cell.title = it.name;
+    cell.innerHTML = it.svg;
+    cell.addEventListener('click', (e) => {
+      e.preventDefault();
+      setActiveRowBadge('icon', it.id, null);
+      closeBadgePopover();
+    });
+    grid.appendChild(cell);
+  });
+
+  // Letter / number badge
+  const charInput = document.getElementById('bp-char');
+  const applyChar = () => {
+    const v = charInput.value.trim();
+    setActiveRowBadge(v ? 'char' : 'none', v);
+    closeBadgePopover();
+  };
+  document.getElementById('bp-char-apply').addEventListener('click', (e) => { e.preventDefault(); applyChar(); });
+  charInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); applyChar(); } });
+
+  document.getElementById('bp-none').addEventListener('click', (e) => { e.preventDefault(); setActiveRowBadge('none'); closeBadgePopover(); });
+  document.getElementById('bp-close').addEventListener('click', (e) => { e.preventDefault(); closeBadgePopover(); });
+
+  // Custom SVG upload
+  const upload = document.getElementById('bp-upload');
+  document.getElementById('bp-upload-btn').addEventListener('click', (e) => { e.preventDefault(); upload.click(); });
+  upload.addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const svg = ev.target.result;
+      if (!/<svg[\s>]/i.test(svg)) { setStatus('That file is not a valid SVG.', 'err'); return; }
+      try {
+        if (!shapesFromSVG(svg).length) throw new Error('no shapes');
+      } catch (err) {
+        setStatus('Could not read that SVG (needs filled paths).', 'err');
+        return;
+      }
+      setActiveRowBadge('icon', null, svg);
+      closeBadgePopover();
+      setStatus('Custom icon applied.', 'ok');
+    };
+    reader.onerror = () => setStatus('Failed to read SVG file.', 'err');
+    reader.readAsText(f);
+  });
+
+  // Close on click-away / Escape
+  pop.addEventListener('click', (e) => e.stopPropagation());
+  document.addEventListener('click', () => { if (!pop.hidden) closeBadgePopover(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !pop.hidden) closeBadgePopover(); });
 }
 
 function renumberRows() {
@@ -967,11 +1595,45 @@ function setupUI() {
     input.focus();
   });
 
-  document.getElementById('download').addEventListener('click', generate3MF);
+  document.getElementById('download').addEventListener('click', doExport);
+
+  // Export format → updates the download button label
+  const fmtSel = document.getElementById('export-format');
+  const dlBtn = document.getElementById('download');
+  const updateDlLabel = () => { dlBtn.textContent = 'Download ' + (fmtSel.value === 'stl' ? '.stl' : '.3mf'); };
+  fmtSel.addEventListener('change', updateDlLabel);
+  updateDlLabel();
 
   // Settings change
   document.getElementById('font-size').addEventListener('input', debounce(rebuild, 200));
   document.getElementById('text-depth').addEventListener('input', debounce(rebuild, 200));
+  document.getElementById('badge-size').addEventListener('input', debounce(rebuild, 200));
+  document.getElementById('bold-text').addEventListener('change', rebuild);
+
+  // Build plate preset + custom dimensions
+  const bedPreset = document.getElementById('bed-preset');
+  const bedWEl = document.getElementById('bed-w');
+  const bedLEl = document.getElementById('bed-l');
+  bedPreset.addEventListener('change', () => {
+    if (bedPreset.value !== 'custom') {
+      const m = bedPreset.value.split('x');
+      bedWEl.value = m[0]; bedLEl.value = m[1];
+    }
+    rebuild();
+  });
+  const onBedInput = debounce(() => { bedPreset.value = 'custom'; rebuild(); }, 250);
+  bedWEl.addEventListener('input', onBedInput);
+  bedLEl.addEventListener('input', onBedInput);
+  const purgeChk = document.getElementById('reserve-purge');
+  const purgeRow = document.getElementById('purge-size-row');
+  const updatePurgeRow = () => { purgeRow.style.display = purgeChk.checked ? '' : 'none'; };
+  purgeChk.addEventListener('change', () => { updatePurgeRow(); rebuild(); });
+  const onPurgeInput = debounce(rebuild, 250);
+  document.getElementById('purge-w').addEventListener('input', onPurgeInput);
+  document.getElementById('purge-l').addEventListener('input', onPurgeInput);
+  updatePurgeRow();
+
+  setupBadgePicker();
 
   // Color swatches
   const colorBase = document.getElementById('color-base');
