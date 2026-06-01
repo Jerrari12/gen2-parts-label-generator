@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1a1a1c">
-<title>GEN2 Classic Pro Label Generator · Jerrari Design</title>
+<title>GEN2 Parts Drawer Label Generator · Jerrari Design</title>
 <style>
   :root {
     /* Jerrari Design brand palette */
@@ -175,7 +175,7 @@
       </svg>
       <div class="brand-text">
         <div class="brand-name">JERRARI DESIGN</div>
-        <div class="brand-tag">GEN2 Classic Pro Label Generator</div>
+        <div class="brand-tag">GEN2 Parts Drawer Label Generator</div>
       </div>
     </div>
     <!-- LOGO END -->
@@ -257,7 +257,7 @@
     </div>
     <div class="setting">
       <span>Reserve purge area (top-right)</span>
-      <span><input type="checkbox" id="reserve-purge" checked></span>
+      <span><input type="checkbox" id="reserve-purge"></span>
     </div>
     <div class="setting" id="purge-size-row">
       <span>Purge W × L (mm)</span>
@@ -289,10 +289,10 @@
   </div>
   <div id="preview">
     <div class="overlay">
-      <strong>GEN2 Classic Pro</strong> · 47 × 25.5 × 1.5 mm<br>
+      <strong>GEN2 Parts Drawer Label</strong> · 29.9 × 8.0 × 1.35 mm<br>
       <span id="label-count">0 labels</span><span class="hint-desktop"> · Scroll to zoom · Drag to rotate</span><span class="hint-mobile"> · Pinch / drag to navigate</span>
     </div>
-    <span class="brand">JERRARI DESIGN · Classic Pro v1.01</span>
+    <span class="brand">JERRARI DESIGN · Parts Drawer Label v1.1</span>
   </div>
 </div>
 
@@ -430,32 +430,29 @@ THREE.OrbitControls = MiniOrbit;
 // GEN2 Label Generator
 //============================================================
 
-// Classic Pro base geometry (from Label-ClassicPro.stl) -- recentered: XY centered, bottom at Z=0. Top flat plane at Z=1.5; tabs/slots at bottom (low Y).
-const BASE_VERTS = [-21.0121,-3.1366,0,-21.0121,-12.7366,0,-21.0121,-3.1366,1.5,-21.0121,-12.7366,1.5,-21.0258,-3.0331,0,-21.0258,-3.0331,1.5,-21.0657,-2.9366,0,-21.0657,-2.9366,1.5,-21.1293,-2.8538,0,-21.1293,-2.8538,1.5,-21.2121,-2.7902,0,-21.2121,-2.7902,1.5,-21.3086,-2.7502,0,-21.3086,-2.7502,1.5,-21.4121,-2.7366,0,-21.4121,-2.7366,1.5,-21.5157,-2.7502,0,-21.5157,-2.7502,1.5,-21.6121,-2.7902,0,-21.6121,-2.7902,1.5,-21.695,-2.8538,0,-21.695,-2.8538,1.5,-21.7586,-2.9366,0,-21.7586,-2.9366,1.5,-21.7985,-3.0331,0,-21.7985,-3.0331,1.5,-21.8121,-3.1366,0,-21.8121,-3.1366,1.5,-22.7354,-10.2747,0.9768,-22.7354,-9.1985,0.9768,-22.7354,-10.2747,0,-22.7354,-9.1985,0,-23.5354,-8.7366,0.1768,-23.4621,-8.7789,0,-23.5354,-10.7366,0.1768,-23.4621,-10.6943,0,-22.77,-12.7366,0.9421,-22.2121,-12.7366,1.5,-22.2121,11.4134,1.5,-23.5354,12.7366,0.1768,-23.5354,-11.7366,0.1768,-23.4621,12.6634,0,-23.4621,-11.7366,0,-22.3797,-12.7366,0,-21.8121,-12.7366,0,-21.8121,-12.7366,1.5,21.0121,-12.7366,1.5,21.0121,-3.1366,1.5,21.0257,-3.0331,1.5,21.0657,-2.9366,1.5,21.1293,-2.8538,1.5,22.2121,11.4134,1.5,21.2121,-2.7902,1.5,21.3086,-2.7502,1.5,21.4121,-2.7366,1.5,21.5156,-2.7502,1.5,21.6121,-2.7902,1.5,21.695,-2.8538,1.5,21.7585,-2.9366,1.5,21.7985,-3.0331,1.5,21.8121,-3.1366,1.5,22.2121,-12.7366,1.5,21.8121,-12.7366,1.5,21.0121,-12.7366,0,21.0121,-3.1366,0,21.8121,-3.1366,0,21.7985,-3.0331,0,21.7585,-2.9366,0,21.695,-2.8538,0,21.6121,-2.7902,0,21.5156,-2.7502,0,21.4121,-2.7366,0,21.3086,-2.7502,0,21.2121,-2.7902,0,21.1293,-2.8538,0,21.0657,-2.9366,0,21.0257,-3.0331,0,22.7353,-9.1985,0.9768,22.7353,-10.2747,0.9768,22.7353,-9.1985,0,22.7353,-10.2747,0,23.5354,-8.7366,0.1768,23.4621,-8.7789,0,23.5354,-10.7366,0.1768,23.4621,-10.6943,0,23.5354,-11.7366,0.1768,22.77,-12.7366,0.9422,23.5354,12.7366,0.1768,23.4621,12.6634,0,23.4621,-11.7366,0,22.3797,-12.7366,0,21.8121,-12.7366,0];
-const BASE_TRIS = [0,1,2,2,1,3,0,2,4,4,2,5,4,5,6,6,5,7,6,7,8,8,7,9,8,9,10,10,9,11,10,11,12,12,11,13,12,13,14,14,13,15,14,15,16,16,15,17,16,17,18,18,17,19,18,19,20,20,19,21,20,21,22,22,21,23,22,23,24,24,23,25,24,25,26,26,25,27,28,29,30,30,29,31,29,32,31,31,32,33,28,30,34,34,30,35,34,36,28,28,36,37,28,37,29,29,37,38,29,38,39,34,40,36,39,32,29,33,32,41,41,32,39,35,42,34,34,42,40,43,36,42,42,36,40,36,43,37,37,43,44,37,44,45,27,45,26,26,45,44,3,46,2,2,46,47,2,47,5,5,47,48,5,48,7,7,48,49,7,49,9,9,49,50,9,50,38,38,50,51,51,50,52,51,52,53,53,54,51,51,54,55,51,55,56,56,57,51,51,57,58,51,58,59,59,60,51,51,60,61,61,60,62,37,27,38,38,27,25,38,25,23,37,45,27,23,21,38,38,21,19,38,19,17,17,15,38,38,15,13,38,13,11,11,9,38,1,63,3,3,63,46,47,46,64,64,46,63,65,60,66,66,60,59,66,59,67,67,59,58,67,58,68,68,58,57,68,57,69,69,57,56,69,56,70,70,56,55,70,55,71,71,55,54,71,54,72,72,54,53,72,53,73,73,53,52,73,52,74,74,52,50,74,50,75,75,50,49,75,49,76,76,49,48,76,48,64,64,48,47,77,78,79,79,78,80,77,79,81,81,79,82,78,83,80,80,83,84,85,83,86,86,83,78,86,78,61,61,78,77,61,77,51,51,77,87,87,77,81,82,88,81,81,88,87,84,83,89,89,83,85,89,85,90,90,85,86,88,10,41,41,10,12,41,12,14,82,66,88,88,66,67,88,67,68,66,82,65,65,82,79,65,79,91,91,79,80,91,80,89,89,80,84,89,90,91,68,69,88,88,69,70,88,70,71,71,72,88,88,72,73,88,73,10,10,73,8,8,73,74,8,74,6,6,74,75,6,75,4,4,75,76,4,76,0,0,76,64,0,64,1,1,64,63,14,16,41,41,16,18,41,18,20,20,22,41,41,22,24,41,24,33,33,24,26,33,26,31,31,26,44,31,44,30,30,44,42,30,42,35,44,43,42,86,61,90,90,61,91,91,61,62,65,91,60,60,91,62,39,87,41,41,87,88,38,51,39,39,51,87];
+// GEN2 drawer-label base geometry (parts-drawer mesh) — XY centered, bottom at Z=0
+const BASE_VERTS = [-14.6879, -4.0, 0.25, 14.9379, -3.75, 0.0, 14.6879, -4.0, 0.25, -14.9379, -3.75, 0.0, 14.05, -4.0, 0.8879, -14.05, -4.0, 0.8879, -14.05, -4.0, 1.35, 14.05, -4.0, 1.35, 14.05, 4.0, 0.8879, 14.9379, 3.75, 0.0, 14.6879, 4.0, 0.25, -14.9379, 3.75, 0.0, -14.6879, 4.0, 0.25, -14.05, 4.0, 0.8879, -14.05, 4.0, 1.35, 14.05, 4.0, 1.35];
+const BASE_TRIS = [0, 1, 2, 3, 1, 0, 0, 2, 4, 5, 0, 4, 6, 4, 7, 6, 5, 4, 1, 4, 2, 8, 4, 1, 9, 10, 8, 9, 8, 1, 9, 11, 12, 10, 9, 12, 8, 10, 12, 8, 12, 13, 8, 13, 14, 15, 8, 14, 5, 3, 0, 11, 3, 5, 13, 12, 11, 13, 11, 5, 8, 7, 4, 8, 15, 7, 15, 6, 7, 15, 14, 6, 14, 5, 6, 14, 13, 5, 3, 9, 1, 11, 9, 3];
 
-// Classic Pro dimensions & usable text area (mm). The top face is a plain flat
-// rectangle at Z=1.5 (no diagonal). Measured from the mesh, the flat top plane
-// spans X ∈ [-22.21, 22.21] and Y ∈ [-12.74, 11.41] in recentered local coords
-// (a small chamfer trims the top edge); tabs/slots sit at the bottom (low Y).
-const LABEL_LEN = 47.07;  // X span (length)
-const LABEL_WID = 25.47;  // Y span (width)
-const LABEL_HT  = 1.5;    // top flat plane where text/badge sit
-const TOP_Z     = 1.5;
-const TOP_X     = 22.2121;   // top-plane half-width (X)
-const TOP_Y_HI  = 11.4134;   // top-plane upper Y bound
-const TOP_Y_LO  = -12.7366;  // top-plane lower Y bound
-const AREA_MARGIN = 2.0;                   // inset from the flat-top edges
-const AREA_LEFT  = -TOP_X + AREA_MARGIN;   // usable rectangle: left
-const AREA_RIGHT =  TOP_X - AREA_MARGIN;   // usable rectangle: right
-const AREA_TOP   =  TOP_Y_HI - AREA_MARGIN;// usable rectangle: top
-const AREA_BOTTOM=  TOP_Y_LO + AREA_MARGIN;// usable rectangle: bottom
-const AREA_CX    = (AREA_LEFT + AREA_RIGHT) / 2;   // horizontal center of usable area
-const AREA_CY    = (AREA_TOP + AREA_BOTTOM) / 2;   // vertical center of usable area
-const ROW_SPACING = 4.0;       // vertical gap between labels within a column
-const COL_SPACING = 6.0;       // horizontal gap between columns
+// Drawer-label dimensions & usable text area (mm). Flat rectangular top face;
+// text + optional left badge sit on the flat top plane at Z = LABEL_HT.
+//
+const LABEL_LEN = 29.88;  // X span (length)
+const LABEL_WID = 8.0;    // Y span (width)
+const LABEL_HT  = 1.35;   // top flat plane where text/badge sit
+const TOP_Z     = 1.35;
+const DIAG_DXDY = 0;      // flat face — no diagonal right edge
+const DIAG_X0   = 1000;   // pushes the diagonal limit out of range (disabled)
+const AREA_MARGIN = 0.8;                  // inset from part edges
+const AREA_LEFT  = -13.25;  // usable top-face text/badge area (X)
+const AREA_RIGHT =  13.25;
+const AREA_TOP   =  3.4;    // usable top-face text/badge area (Y)
+const AREA_BOTTOM= -3.4;
+const ROW_SPACING = 2.0;       // vertical gap between labels within a column
+const COL_SPACING = 4.0;       // horizontal gap between columns
 const BED_MARGIN  = 5.0;       // keep the label grid this far from the plate edge
 const PURGE_SIZE  = 80.0;      // reserved top-right square for a prime/purge block (mm)
+const PURGE_AUTO_FILL = 0.85;  // auto-reserve the purge corner once labels fill this much of a plate
 
 // Globals
 let scene, camera, renderer, controls;
@@ -463,6 +460,15 @@ let font = null;
 let labelGroup = null;
 let baseMaterial, textMaterial;
 let bedOutline = null;
+// Purge corner is auto-managed (off until a plate is nearly full) until the user toggles it by hand.
+let purgeAutoManaged = true;
+
+// Show/hide the purge size row to match the checkbox state.
+function syncPurgeRow() {
+  const c = document.getElementById('reserve-purge');
+  const r = document.getElementById('purge-size-row');
+  if (r) r.style.display = (c && c.checked) ? '' : 'none';
+}
 
 //============================================================
 // Init
@@ -641,17 +647,35 @@ function buildLineGeo(line, fontSize, depth, bold) {
   return g;
 }
 
-// Word-wrap text into lines that each fit within maxWidth (mm) at the given cap height.
-// The Classic Pro face is a plain rectangle, so the column width is constant per line.
-function wrapText(text, capMm, maxWidth) {
+// Max usable X (right limit) for a horizontal band whose lowest point is at yBot,
+// constrained by the diagonal right edge: x_right(y) = DIAG_X0 + DIAG_DXDY * y.
+function rightLimitAt(yBot) {
+  const onDiag = DIAG_X0 + DIAG_DXDY * yBot;
+  return Math.min(AREA_RIGHT, onDiag - AREA_MARGIN);
+}
+
+// Which left margin a line uses: a line that sits entirely below the badge can start
+// at the full left edge; a line beside the badge starts after it.
+function lineLeftX(topY, leftXBadge, badgeBottomY) {
+  return (topY <= badgeBottomY + 0.01) ? AREA_LEFT : leftXBadge;
+}
+
+// Word-wrap text into lines, respecting the narrowing area and the badge.
+function wrapText(text, capMm, leftXBadge, badgeBottomY) {
   const fontSize = fontSizeForCap(capMm);
   const pitch = capMm * LINE_GAP;
   const words = text.trim().split(/\s+/);
   const lines = [];
   let cur = '';
+  const maxWidthForLine = (n) => {
+    const topY = AREA_TOP - n * pitch;
+    const yBot = topY - capMm;
+    const lx = lineLeftX(topY, leftXBadge, badgeBottomY);
+    return Math.max(0, rightLimitAt(yBot) - lx);
+  };
   for (const word of words) {
     const trial = cur ? cur + ' ' + word : word;
-    if (cur === '' || font.getAdvanceWidth(trial, fontSize) <= maxWidth) {
+    if (cur === '' || font.getAdvanceWidth(trial, fontSize) <= maxWidthForLine(lines.length)) {
       cur = trial;
     } else {
       lines.push(cur);
@@ -662,39 +686,43 @@ function wrapText(text, capMm, maxWidth) {
   return { lines, fontSize, pitch };
 }
 
-// Build a word-wrapped text block, auto-shrinking the cap height until it fits within
-// (maxWidth × maxHeight). Each returned line geometry is normalised so its LEFT edge is
-// at x=0 and its cap-top is at y = -i*pitch (line 0 at y=0, block grows downward); the
-// caller positions the block (center-justified, or left-justified beside an icon).
-// Returns { lines:[{geo,w}], blockW, visualH, cap, pitch, fits } or null.
-function buildTextBlock(text, capMm, depth, maxWidth, maxHeight, bold) {
+// Build a left-justified, top-anchored, word-wrapped text block. Auto-shrinks to fit.
+// Returns { geo, top, bottom } in label-local coords, or null.
+function buildTextBlock(text, capMm, depth, leftXBadge, badgeBottomY, bold, centerX) {
   let cap = Math.max(MIN_PRINT_CAP, capMm);   // start at the requested size
-  let result = null, fits = false;
+  let geos = [], totalH = 0, fits = false;
   for (let it = 0; it < 24; it++) {
-    const w = wrapText(text, cap, maxWidth);
-    const lines = [];
-    let overflow = false, blockW = 0;
+    const w = wrapText(text, cap, leftXBadge, badgeBottomY);
+    geos = [];
+    let overflow = false;
     for (let i = 0; i < w.lines.length; i++) {
       const g = buildLineGeo(w.lines[i], w.fontSize, depth, bold);
       if (!g) continue;
       const bb = g.boundingBox;
       const lw = bb.max.x - bb.min.x;
-      // normalise: left edge -> 0, cap-top of this line -> -i*pitch
-      g.translate(-bb.min.x, (-i * w.pitch) - bb.max.y, 0);
-      lines.push({ geo: g, w: lw });
-      if (lw > maxWidth + 0.1) overflow = true;
-      if (lw > blockW) blockW = lw;
+      const topY = AREA_TOP - i * w.pitch;
+      const lx = lineLeftX(topY, leftXBadge, badgeBottomY);
+      // Align this line's top -> topY. Horizontally: centered within the line's usable
+      // span when centerX is set (no badge), otherwise left-justified to lx.
+      if (centerX) {
+        const mid = (lx + rightLimitAt(topY - cap)) / 2;
+        g.translate(mid - (bb.min.x + bb.max.x) / 2, topY - bb.max.y, 0);
+      } else {
+        g.translate(lx - bb.min.x, topY - bb.max.y, 0);
+      }
+      geos.push(g);
+      const yBot = topY - cap;
+      if (lx + lw > rightLimitAt(yBot) + 0.1) overflow = true;
     }
-    const visualH = (w.lines.length - 1) * w.pitch + cap;
-    const tooTall = visualH > maxHeight + 0.1;
+    totalH = w.lines.length * w.pitch;
+    const tooTall = (AREA_TOP - totalH) < AREA_BOTTOM;
     fits = !overflow && !tooTall;
-    result = { lines, blockW, visualH, cap, pitch: w.pitch, fits };
     // Stop once it fits, or once we've hit the printable floor (don't shrink further).
     if (fits || cap <= MIN_PRINT_CAP + 1e-6) break;
     cap = Math.max(MIN_PRINT_CAP, cap * 0.92);
   }
-  if (!result || !result.lines.length) return null;
-  return result;
+  if (!geos.length) return null;
+  return { geo: mergeGeoms(geos), top: AREA_TOP, bottom: AREA_TOP - totalH, fits };
 }
 
 // Parse an SVG string into THREE.Shapes (for icons, built-in or uploaded).
@@ -752,53 +780,36 @@ function buildBadgeGeo(badge, sizeMm, depth) {
 
 // Build all meshes for one label (text + optional badge), positioned in label-local XY.
 // Text/badge sit at z=0 here; the caller lifts them to TOP_Z.
-// Layout rules for the rectangular Classic Pro face:
-//   • text only   -> each line centered horizontally; block centered vertically
-//   • icon only   -> icon centered on the label
-//   • icon + text -> icon to the left of the text; every text line left-justified to the
-//                    icon; icon vertically centered to the text block; the whole
-//                    icon+text group centered both horizontally and vertically.
 function buildLabelMeshes(data, capMm, depth, badgeSize, bold) {
   let badgeGeo = null, badgeW = 0, badgeH = 0;
   if (data.badge && data.badge.type && data.badge.type !== 'none') {
     const b = buildBadgeGeo(data.badge, badgeSize, depth);
     if (b) { badgeGeo = b.geo; badgeW = b.w; badgeH = b.h; }
   }
-  const hasText = !!(data.text && data.text.trim());
-  const usableW = AREA_RIGHT - AREA_LEFT;
-  const usableH = AREA_TOP - AREA_BOTTOM;
-
-  // Text column: full usable width, minus the icon + gap when an icon is present.
-  const textMaxW = hasText
-    ? Math.max(1, usableW - (badgeGeo ? badgeW + BADGE_GAP : 0))
-    : 0;
-  const tb = hasText
-    ? buildTextBlock(data.text, capMm, depth, textMaxW, usableH, bold) : null;
-
-  let textGeo = null, textFits = true;
-  if (tb) {
-    textFits = tb.fits;
-    const topY = AREA_CY + tb.visualH / 2;   // cap-top of the first line
-    const geos = [];
-    if (badgeGeo) {
-      // icon + text: center the [icon | gap | text] group horizontally.
-      const groupW = badgeW + BADGE_GAP + tb.blockW;
-      const groupLeft = AREA_CX - groupW / 2;
-      const textLeft = groupLeft + badgeW + BADGE_GAP;
-      for (const ln of tb.lines) { ln.geo.translate(textLeft, topY, 0); geos.push(ln.geo); }
-      // icon vertically centered to the text block, sitting to its left.
-      badgeGeo.translate(groupLeft + badgeW / 2, AREA_CY, 0);
-    } else {
-      // text only: center each line horizontally; block centered vertically.
-      for (const ln of tb.lines) { ln.geo.translate(AREA_CX - ln.w / 2, topY, 0); geos.push(ln.geo); }
-    }
-    textGeo = mergeGeoms(geos);
-  } else if (badgeGeo) {
-    // icon only: center it on the label.
-    badgeGeo.translate(AREA_CX, AREA_CY, 0);
+  const leftXBadge = AREA_LEFT + (badgeGeo ? badgeW + BADGE_GAP : 0);
+  const badgeBottomY = badgeGeo ? (AREA_TOP - badgeH) : (AREA_TOP + 999);
+  const tb = (data.text && data.text.trim())
+    ? buildTextBlock(data.text, capMm, depth, leftXBadge, badgeBottomY, bold, !badgeGeo) : null;
+  if (badgeGeo) {
+    // Badge top-anchored at AREA_TOP for now; the whole group is vertically centered below.
+    const cy = AREA_TOP - badgeH / 2;
+    badgeGeo.translate(AREA_LEFT + badgeW / 2, cy, 0);
   }
-
-  return { textGeo, badgeGeo, textFits };
+  // Vertically center the badge + text as a group within the usable top-face area.
+  const parts = [];
+  if (badgeGeo) parts.push(badgeGeo);
+  if (tb && tb.geo) parts.push(tb.geo);
+  if (parts.length) {
+    let yMin = Infinity, yMax = -Infinity;
+    for (const g of parts) {
+      g.computeBoundingBox();
+      yMin = Math.min(yMin, g.boundingBox.min.y);
+      yMax = Math.max(yMax, g.boundingBox.max.y);
+    }
+    const dy = (AREA_TOP + AREA_BOTTOM) / 2 - (yMin + yMax) / 2;
+    for (const g of parts) g.translate(0, dy, 0);
+  }
+  return { textGeo: tb ? tb.geo : null, badgeGeo, textFits: tb ? tb.fits : true };
 }
 
 // ----- Robust path → shapes conversion -----
@@ -1107,6 +1118,14 @@ function rebuild() {
   baseGeo.computeVertexNormals();
 
   const { bedW, bedL } = getBedSize();
+  // Auto-manage the purge corner: off by default, switched on only once a plate is nearly
+  // full. Once the user toggles the checkbox themselves, we stop overriding their choice.
+  if (purgeAutoManaged) {
+    const capNoPurge = plateCapacity(bedW, bedL, null).perPlate;
+    const shouldReserve = labels.length >= Math.ceil(PURGE_AUTO_FILL * capNoPurge);
+    const chk = document.getElementById('reserve-purge');
+    if (chk && chk.checked !== shouldReserve) { chk.checked = shouldReserve; syncPurgeRow(); }
+  }
   const purge = getPurge();
   const cap = plateCapacity(bedW, bedL, purge);
   const nPlates = Math.max(1, Math.ceil(Math.max(1, labels.length) / cap.perPlate));
@@ -1290,7 +1309,7 @@ async function buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bol
   const modelXml =
     `<?xml version="1.0" encoding="UTF-8"?>\n` +
     `<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:p="http://schemas.microsoft.com/3dmanufacturing/production/2015/06">` +
-    `<metadata name="Application">GEN2 Classic Pro Label Generator</metadata>` +
+    `<metadata name="Application">GEN2 Parts Drawer Label Generator</metadata>` +
     `<metadata name="Designer">Jerrari3D</metadata>` +
     `<metadata name="CreationDate">${new Date().toISOString().slice(0,10)}</metadata>` +
     `<resources>${resources}</resources><build>${builds.join('')}</build></model>`;
@@ -1394,9 +1413,9 @@ async function doExport() {
     const lay = computeLayout(slice.length, bedW, bedL, purge);
     const suffix = nPlates > 1 ? `_plate${p + 1}of${nPlates}` : '';
     if (fmt === 'stl') {
-      files.push({ name: `classicpro_labels${suffix}.stl`, blob: buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+      files.push({ name: `partsdrawerlabels${suffix}.stl`, blob: buildPlateSTL(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
     } else {
-      files.push({ name: `classicpro_labels${suffix}.3mf`, blob: await buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
+      files.push({ name: `partsdrawerlabels${suffix}.3mf`, blob: await buildPlate3MF(slice, lay, bedW, bedL, capH, depth, badgeSize, bold) });
     }
   }
 
@@ -1407,7 +1426,7 @@ async function doExport() {
     const zip = new JSZip();
     files.forEach(f => zip.file(f.name, f.blob));
     const z = await zip.generateAsync({ type: 'blob' });
-    const zname = `gen2_classicpro_labels_${nPlates}plates_${fmt}.zip`;
+    const zname = `gen2_partsdrawerlabels_${nPlates}plates_${fmt}.zip`;
     downloadBlob(z, zname);
     setStatus(`Saved ${zname} — ${nPlates} separate plate files (${(z.size / 1024).toFixed(1)} KB)`, 'ok');
   }
@@ -1625,13 +1644,11 @@ function setupUI() {
   bedWEl.addEventListener('input', onBedInput);
   bedLEl.addEventListener('input', onBedInput);
   const purgeChk = document.getElementById('reserve-purge');
-  const purgeRow = document.getElementById('purge-size-row');
-  const updatePurgeRow = () => { purgeRow.style.display = purgeChk.checked ? '' : 'none'; };
-  purgeChk.addEventListener('change', () => { updatePurgeRow(); rebuild(); });
+  purgeChk.addEventListener('change', () => { purgeAutoManaged = false; syncPurgeRow(); rebuild(); });
   const onPurgeInput = debounce(rebuild, 250);
   document.getElementById('purge-w').addEventListener('input', onPurgeInput);
   document.getElementById('purge-l').addEventListener('input', onPurgeInput);
-  updatePurgeRow();
+  syncPurgeRow();
 
   setupBadgePicker();
 
